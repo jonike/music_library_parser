@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+  media_parser:
+    user: 1000:1000
+    build: .
+    volumes:
+      - ./data/output:/data/output
+    environment:
+      - DB_HOST=db
+      - DB_NAME=admin
+      - DB_USER=run_admin_run
+      - DB_PASS=run_pass_run
+    depends_on:
+      - mongodb
+    networks:
+      - frontend
+      - backend
+  mongodb:
+    image: mongo:3.6
+    ports:
+      - "27017:27017"
+    command: mongod --port 27017
+    environment:
+     - MONGO_INITDB_ROOT_USERNAME=run_admin_run
+     - MONGO_INITDB_ROOT_PASSWORD=run_pass_run
+     - MONGO_INITDB_DATABASE=admin
+    volumes:
+      - ./media_parser/db/mongo_create_rwuser.js:/docker-entrypoint-initdb.d/mongo_create_rwuser.js:ro
+      - ./data/output:/data/output
+    networks:
+      - backend
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+    

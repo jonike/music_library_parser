@@ -1,0 +1,24 @@
+language: python
+python:
+  - "3.6"
+  - "3.7"
+install:
+  - pip install -r requirements.txt
+  - pip install codecov
+env:
+  - SH=bash
+  - export PYTHONPATH=$PYTHONPATH:$(pwd)
+before_script:
+  - mongo admin --eval 'db.createUser({user:"run_admin_run",pwd:"run_pass_run",roles:["dbAdminAnyDatabase"]});'
+  - psql -c "CREATE DATABASE media_db;" -U postgres
+  - psql -c "CREATE USER run_admin_run WITH PASSWORD 'run_pass_run';" -U postgres
+services:
+  - mongodb
+  - postgresql
+script:
+  - python ./media_parser/db/postgres_etl.py
+  - python ./media_parser/insert_media_mongodb.py
+  - python -m pytest
+branches:
+  only:
+   - master

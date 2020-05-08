@@ -1,0 +1,22 @@
+path_00: 'music_library_parser\data\input'
+found: '11' directories [118.65 MiB]
+found: '03' file extensions: 
+	0003	.flac files
+	0004	.m4a  files
+	0004	.mp3  files
+build_stat_list()
+   parsing: [0001 of 0011]   9.1% '01~The Suburbs~Arcade Fire~The Suburbs~2013.mp3'
+   parsing: [0002 of 0011]  18.2% '07~The Best Is Yet To Come~Frank Sinatra~Sinatra Reprise~1991.mp3'
+   parsing: [0003 of 0011]  27.3% '02~Obstacle 1~Interpol~Turn On The Bright Lights~2002.mp3'
+   parsing: [0004 of 0011]  36.4% '01~Capriccio Espagnol, Opus 35 – Alborada~Capriccio Espagnol~Rimsky-Korsakov.mp3'
+   parsing: [0005 of 0011]  45.5% '01~For Beginners~M. Ward~Hold Time~2009.m4a'
+   parsing: [0006 of 0011]  54.5% '01~Future Proof~Massive Attack~100th Window~2003.m4a'
+   parsing: [0007 of 0011]  63.6% '01~Fade Into You~Mazzy Star~So Tonight That I Might See~1993.m4a'
+   parsing: [0008 of 0011]  72.7% '02~II. Malaguena~Rapsodie Espagnol~Ravel.m4a'
+   parsing: [0009 of 0011]  81.8% '02~II. Allegro scherzando~Symphony No.8 in F major, Op.93~Beethoven~1988.flac'
+   parsing: [0010 of 0011]  90.9% '1 - Human Behaviour - Björk.flac'
+   parsing: [0011 of 0011] 100.0% '01~Walkin' After Midnight~Definitive Collection~Patsy Cline~2004.flac'
+SUCCESS! export_to_json() 'data\output\json'
+SUCCESS! export_to_excel() 'data\output\~media_report.xlsx'
+
+path_00: 'music_library_parser\data\input' runtime:  0.76 seconds
