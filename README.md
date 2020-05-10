@@ -60,12 +60,13 @@ def build_genre_dictionary() -> dict:
 # start MongoDB in docker
 docker-compose up --build
 docker ps
+docker-compose ps
 docker exec -it {CONTAINER_ID} /bin/bash
 docker-compose run media_parser sh -c "python /media_parser/show_installed_pkgs.py"
 docker-compose run media_parser sh -c "python /media_parser/create_media_report.py"
 # once docker is up, run scripts from PyCharm IDE on host
-python ./music_library_parser/insert_media_mongodb.py
-python ./music_library_parser/db/postgres_etl.py
+python ./media_parser/insert_media_mongodb.py -p=27017
+python ./media_parser/db/postgres_etl.py -p=5432
 # hit CTRL-C to exit MongoDB in docker
 docker-compose down --remove-orphans
 ```

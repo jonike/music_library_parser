@@ -1,5 +1,5 @@
 version: "3"
-
+# hostPort:containerPort
 services:
   media_parser:
     user: 1000:1000
@@ -7,7 +7,7 @@ services:
     volumes:
       - ./data/output:/data/output
     environment:
-      - DB_HOST=db
+      - DB_HOST=mongodb
       - DB_NAME=admin
       - DB_USER=run_admin_run
       - DB_PASS=run_pass_run
@@ -17,7 +17,7 @@ services:
       - frontend
       - backend
   mongodb:
-    image: mongo:3.6
+    image: mongo:4.2-bionic
     ports:
       - "27017:27017"
     command: mongod --port 27017
@@ -26,14 +26,43 @@ services:
      - MONGO_INITDB_ROOT_PASSWORD=run_pass_run
      - MONGO_INITDB_DATABASE=admin
     volumes:
-      - ./media_parser/db/mongo_create_rwuser.js:/docker-entrypoint-initdb.d/mongo_create_rwuser.js:ro
+      #- ./media_parser/db/mongo_create_rwuser.js:/docker-entrypoint-initdb.d/mongo_create_rwuser.js:ro
       - ./data/output:/data/output
     networks:
       - backend
+
+  postgres_etl:
+    user: 1000:1000
+    build: .
+    volumes:
+      - ./data/output:/data/output
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=media_db
+      - DB_USER=run_admin_run
+      - DB_PASS=run_pass_run
+      - DB_PORT=5432
+    depends_on:
+      - postgres
+    networks:
+      - frontend
+      - backend
+  postgres:
+    image: postgres:12.2
+    ports:
+      - "5432:5432"
+    environment:
+     - POSTGRES_USER=run_admin_run
+     - POSTGRES_PASSWORD=run_pass_run
+     - POSTGRES_DB=media_db
+    volumes:
+      - ./data/output:/data/output
+    networks:
+      - backend
+
 
 networks:
   frontend:
     driver: bridge
   backend:
     driver: bridge
-    

@@ -8,8 +8,8 @@ import numpy as np
 from scipy.special import erf
 from bokeh.layouts import gridplot
 from bokeh.plotting import figure, output_file, show
-from db.mongodb_api import MongoMedia
-import lib.user_input as ui
+from db import cmd_args, mongodb_api
+
 
 np.seterr(divide='ignore', invalid='ignore')
 np.set_printoptions(precision=4)
@@ -103,18 +103,18 @@ def main():
     """"Driver for plotting normal distribution based on track length."""
     print(f"{SCRIPT_NAME} starting...")
     start = time.perf_counter()
-    args = ui.get_cmd_args()
+    args = cmd_args.get_cmd_args()
     path_list = [args.file_path]
     username = 'run_admin_run'
     password = 'run_pass_run'
     server = args.server
     port_num = args.port_num
-    mongodb_api = MongoMedia(server=server,
+    mdb = mongodb_api.MongoMedia(server=server,
                              port_num=port_num,
                              username=username,
                              password=password)
-    if mongodb_api.is_connected():
-        hhmmss_list = mongodb_api.get_object_by_key('track_length')
+    if mdb.is_connected():
+        hhmmss_list = mdb.get_object_by_key('track_length')
         if hhmmss_list:
             second_list = []
             for time_val in hhmmss_list:

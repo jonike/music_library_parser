@@ -16,8 +16,8 @@ services:
   - mongodb
   - postgresql
 script:
-  - python ./media_parser/db/postgres_etl.py
-  - python ./media_parser/insert_media_mongodb.py
+  - python ./media_parser/db/postgres_etl.py --port_num=5432
+  - python ./media_parser/insert_media_mongodb.py --port_num=27017
   - python -m pytest
 branches:
   only:

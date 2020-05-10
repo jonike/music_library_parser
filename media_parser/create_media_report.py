@@ -12,10 +12,7 @@ import pandas
 from dateutil import parser
 from pathvalidate import sanitize_filename
 import xlsxwriter
-import lib.file_tools as file_tools
-from lib import config
-import lib.media_tools as media_tools
-import lib.user_input as ui
+from lib import config, file_tools, media_tools, user_input
 
 BASE_DIR, SCRIPT_NAME = os.path.split(os.path.abspath(__file__))
 PARENT_PATH, CURR_DIR = os.path.split(BASE_DIR)
@@ -148,8 +145,9 @@ def export_to_excel(output_path: pathlib.Path,
                               str(tags['genre_in_dict']), ctr)
                     ws1.write('L%d' % num,
                               str(tags['album_art']), ctr)
-                    ws1.write('M%d' % num,
-                              str(tags['year']), ctr_int)
+                    if tags['year']:
+                        ws1.write('M%d' % num,
+                                  int(tags['year']), ctr_int)
                     ws1.write('N%d' % num,
                               str(tags['rating']), ctr_int)
                     ws1.write('O%d' % num,
@@ -276,9 +274,10 @@ def main():
     """Driver to generate output excel report based on media in input path."""
     if config.DEMO_ENABLED:
         data_path = pathlib.Path(PARENT_PATH, 'data', 'input')
-        path_list = ui.prompt_path_input(input_path=data_path, skip_ui=True)
+        path_list = user_input.prompt_path_input(input_path=data_path,
+                                                 skip_ui=True)
     else:
-        path_list = ui.get_test_directories()
+        path_list = user_input.get_test_directories()
     if path_list:  # is not None from bad user input
         print(f"{SCRIPT_NAME} starting...")
         start = time.perf_counter()
@@ -294,7 +293,7 @@ def main():
                 dir_stat_list = file_tools.get_dir_stats(input_path)
                 stat_list, path_str = media_tools.build_stat_list(input_path)
                 log_str += path_str
-                trunc_path = f"{input_path.drive}_{input_path.parts[-3]}"
+                trunc_path = f"{'-'.join(input_path.parts[-3:])}"
                 if config.DEMO_ENABLED:
                     output_path = pathlib.Path(PARENT_PATH, 'data', 'output')
                     json_path = pathlib.Path(str(output_path), 'json')

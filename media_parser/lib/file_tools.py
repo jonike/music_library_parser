@@ -242,7 +242,7 @@ def build_ext_count_str(input_path: pathlib.Path) -> str:
     if isinstance(input_path, pathlib.Path) and input_path:
         if input_path.exists():
             ext_list = [str(p.suffix) for p in
-                        input_path.rglob(f"*.*") if p.is_file()]
+                        input_path.rglob("*.*") if p.is_file()]
             # get count of each unique extensions in alphabetical order
             ext_dict = OrderedDict(Counter(sorted(ext_list)))
             ext_count_str = ''
@@ -279,10 +279,10 @@ def get_directories(input_path: pathlib.Path,
         if input_path.exists():
             if recursive:
                 dir_list = [p.absolute() for p in
-                            sorted(input_path.rglob(f"*")) if p.is_dir()]
+                            sorted(input_path.rglob("*")) if p.is_dir()]
             else:
                 dir_list = [p.absolute() for p in
-                            sorted(input_path.glob(f"*")) if p.is_dir()]
+                            sorted(input_path.glob("*")) if p.is_dir()]
     return sorted(dir_list)
 
 
@@ -310,10 +310,10 @@ def get_extensions(input_path: pathlib.Path,
         if input_path.exists():
             if recursive:
                 ext_list = [str(p.suffix) for p in
-                            input_path.rglob(f"*") if p.is_file()]
+                            input_path.rglob("*") if p.is_file()]
             else:
                 ext_list = [str(p.suffix) for p in
-                            input_path.glob(f"*") if p.is_file()]
+                            input_path.glob("*") if p.is_file()]
             ext_set = set(ext_list)
             return sorted(ext_set)
     return None

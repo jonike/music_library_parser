@@ -5,7 +5,6 @@ import random
 import hashlib
 import uuid
 from bson import ObjectId
-
 from media_parser.db.mongodb_api import MongoMedia
 from media_parser.lib.file_tools import get_files
 

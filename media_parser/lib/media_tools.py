@@ -11,7 +11,7 @@ import traceback
 import chardet
 import mutagen
 
-AUDIO_EXT = ['.mp3', '.m4a', '.flac']
+AUDIO_EXT = ['.mp3', '.m4a', '.flac', '.wma']
 IS_WINDOWS = sys.platform.startswith('win')
 DEBUG = False
 SHOW_METHODS = False
@@ -52,13 +52,19 @@ def dump_tag_data(media_path: pathlib.Path) -> dict:
     """Parses media tag data of interest into dictionary mapping."""
     show_methods(inspect.currentframe().f_code.co_name)
     file_ext = str(media_path.suffix).lower()
-    tag_dict = OrderedDict([(hdr, 0) for hdr in HEADER_KEYS])
+    tag_dict = OrderedDict([(hdr, '') for hdr in HEADER_KEYS])
     if file_ext == '.mp3':
-        tag_dict = dump_mp3_tags(media_path)
+        tag_dict = dump_mp3_tags(media_path, tag_dict)
     elif file_ext == '.m4a':
-        tag_dict = dump_m4a_tags(media_path)
+        tag_dict = dump_m4a_tags(media_path, tag_dict)
     elif file_ext == '.flac':
-        tag_dict = dump_flac_tags(media_path)
+        tag_dict = dump_flac_tags(media_path, tag_dict)
+    elif file_ext == '.wma':
+        tag_dict = dump_wma_tags(media_path, tag_dict)
+    if not tag_dict['track_gain']:
+        tag_dict['track_gain'] = 0.0
+    if not tag_dict['album_gain']:
+        tag_dict['album_gain'] = 0.0
     return tag_dict
 
 
@@ -76,6 +82,7 @@ def build_genre_dictionary() -> dict:
     genre_dict['Ravel'] = 'Classical'
     genre_dict['Rimsky-Korsakov'] = 'Classical'
     genre_dict['The Fall'] = 'Post-Punk'
+    genre_dict['Sallie Ford & The Sound Outside'] = 'Rockabilly'
     # ...
     return genre_dict
 
@@ -87,6 +94,7 @@ def convert_mp3_rating(input_rating: str = 'default') -> str:
     else:
         if input_rating.isdigit():
             int_rating = int(input_rating)
+            rating = ''
             if int_rating == 0:
                 rating = '0-star'
             elif 1 <= int_rating <= 22:
@@ -136,16 +144,14 @@ def convert_flac_m4a_rating(input_rating: str = 'default') -> str:
     return rating
 
 
-def export_tags(input_path: str = 'default') -> None:
+def export_tags(input_path: pathlib.Path, file_data: mutagen.File) -> None:
     """Dump media tags to text files."""
     show_methods(inspect.currentframe().f_code.co_name)
-    if isinstance(input_path, str) and input_path:
+    if isinstance(input_path, pathlib.Path) and input_path:
         try:
-            pl_path = pathlib.Path(input_path)
-            file_data = mutagen.File(input_path)
-            curr_dir = pl_path.parts[-1]
-            output_path = os.path.join(str(pl_path.parent),
-                                       f"~{curr_dir}_tags")
+            curr_dir = input_path.parts[-1]
+            output_path = os.path.join(str(input_path.parent),
+                                       f"~{curr_dir}_tags.txt")
             tag_data = str(file_data.tags)
             with open(output_path, 'w', encoding='utf-8') as txt_file:
                 txt_file.write(tag_data)
@@ -154,10 +160,9 @@ def export_tags(input_path: str = 'default') -> None:
             show_exception()
 
 
-def dump_mp3_tags(media_path: pathlib.Path) -> dict:
+def dump_mp3_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
     """Parses MP3 tag data of interest into dictionary mapping."""
     show_methods(inspect.currentframe().f_code.co_name)
-    tag_dict = OrderedDict([(hdr, '') for hdr in HEADER_KEYS])
     try:
         file_data = mutagen.File(media_path)
         if str(media_path.suffix).lower() == '.mp3':
@@ -182,6 +187,8 @@ def dump_mp3_tags(media_path: pathlib.Path) -> dict:
                 tag_dict['encoder'] = str(file_data['TENC'][0]).strip('\n')
             if 'TDRC' in file_data:
                 tag_dict['year'] = str(file_data['TDRC'][0])
+                if len(tag_dict['year']) > 4:
+                    tag_dict['year'] = tag_dict['year'][0:4]
             if 'TRCK' in file_data:
                 track_str = str(file_data['TRCK'][0])
                 if '/' in track_str:
@@ -207,15 +214,14 @@ def dump_mp3_tags(media_path: pathlib.Path) -> dict:
                 tag_dict['album_art'] = "ALBUM_ART"
             else:
                 tag_dict['album_art'] = "MISSING_ART"
-    except (OSError, mutagen.MutagenError) as exc:
+    except (OSError, ValueError, mutagen.MutagenError) as exc:
         print(f"~!ERROR!~ input: '{media_path}' {sys.exc_info()[0]} {exc}")
     return tag_dict
 
 
-def dump_m4a_tags(media_path: pathlib.Path) -> dict:
+def dump_m4a_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
     """Parses M4A tag data of interest into dictionary mapping."""
     show_methods(inspect.currentframe().f_code.co_name)
-    tag_dict = OrderedDict([(hdr, '') for hdr in HEADER_KEYS])
     try:
         file_data = mutagen.File(media_path)
         if str(media_path.suffix).lower() == '.m4a':
@@ -238,7 +244,7 @@ def dump_m4a_tags(media_path: pathlib.Path) -> dict:
             if '©too' in file_data:
                 tag_dict['encoder'] = str(file_data['©too'][0]).strip('\n')
             if '©day' in file_data:
-                tag_dict['year'] = int(file_data['©day'][0])
+                tag_dict['year'] = int(file_data['©day'][0][0:4])
             if 'trkn' in file_data:
                 track_str = str(file_data['trkn'][0])[1:-1].split(",")[0]
                 if '/' in track_str:
@@ -264,15 +270,14 @@ def dump_m4a_tags(media_path: pathlib.Path) -> dict:
                 tag_dict['album_art'] = "ALBUM_ART"
             else:
                 tag_dict['album_art'] = "MISSING_ART"
-    except (OSError, mutagen.MutagenError) as exc:
+    except (OSError, ValueError, mutagen.MutagenError) as exc:
         print(f"~!ERROR!~ input: '{media_path}' {sys.exc_info()[0]} {exc}")
     return tag_dict
 
 
-def dump_flac_tags(media_path: pathlib.Path) -> dict:
+def dump_flac_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
     """Parses FLAC tag data of interest into dictionary mapping."""
     show_methods(inspect.currentframe().f_code.co_name)
-    tag_dict = OrderedDict([(hdr, '') for hdr in HEADER_KEYS])
     try:
         file_data = mutagen.File(media_path)
         if str(media_path.suffix).lower() == '.flac':
@@ -294,7 +299,7 @@ def dump_flac_tags(media_path: pathlib.Path) -> dict:
             if 'encoder' in file_data:
                 tag_dict['encoder'] = str(file_data['encoder'][0]).strip('\n')
             if 'date' in file_data:
-                tag_dict['year'] = int(file_data['date'][0])
+                tag_dict['year'] = int(file_data['date'][0][0:4])
             if 'tracknumber' in file_data:
                 track_str = str(file_data['tracknumber'][0])
                 if '/' in track_str:
@@ -321,7 +326,59 @@ def dump_flac_tags(media_path: pathlib.Path) -> dict:
                 tag_dict['album_art'] = "ALBUM_ART"
             else:
                 tag_dict['album_art'] = "MISSING_ART"
-    except (OSError, mutagen.MutagenError) as exc:
+    except (OSError, ValueError, mutagen.MutagenError) as exc:
+        print(f"~!ERROR!~ input: '{media_path}' {sys.exc_info()[0]} {exc}")
+    return tag_dict
+
+
+def dump_wma_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
+    """Parses WMA tag data of interest into dictionary mapping."""
+    show_methods(inspect.currentframe().f_code.co_name)
+    try:
+        file_data = mutagen.File(media_path)
+        if str(media_path.suffix).lower() == '.wma':
+            audio = mutagen.asf.ASF(media_path)
+            parsed_dict = OrderedDict([(key, str(val[0])) for key, val in
+                                       audio.tags.as_dict().items()])
+            #for key, val in parsed_dict.items():
+            #    print(f"{key}:  '{val}'")
+            hhmmss = str(datetime.timedelta(seconds=audio.info.length))
+            #export_tags(media_path, file_data)
+            tag_dict['track_length'] = str(hhmmss.split('.')[0])
+            if 'Author' in file_data:
+                tag_dict['artist'] = parsed_dict['Author']
+            if 'WM/AlbumTitle' in file_data:
+                tag_dict['album'] = parsed_dict['WM/AlbumTitle']
+            if 'Title' in file_data:
+                tag_dict['title'] = parsed_dict['Title']
+            if 'WM/Composer' in file_data:
+                tag_dict['composer'] = parsed_dict['WM/Composer']
+            if 'WM/Conductor' in file_data:
+                tag_dict['conductor'] = parsed_dict['WM/Conductor']
+            if 'WM/Genre' in file_data:
+                tag_dict['genre'] = parsed_dict['WM/Genre']
+            if 'WM/ToolName' in file_data:
+                tag_dict['encoder'] = parsed_dict['WM/ToolName']
+            if 'WM/Year' in file_data:
+                tag_dict['year'] = parsed_dict['WM/Year']
+            if 'WM/TrackNumber' in file_data:
+                tag_dict['track'] = int(parsed_dict['WM/TrackNumber'])
+            if 'SDB/Rating' in file_data:
+                rating_str = str(parsed_dict['SDB/Rating'])
+                tag_dict['rating'] = convert_flac_m4a_rating(rating_str)
+            else:
+                tag_dict['rating'] = convert_flac_m4a_rating('default')
+            if 'replaygain_track_gain' in file_data:
+                tag_dict['track_gain'] = parsed_dict['replaygain_track_gain'][0:-3]
+            if 'replaygain_album_gain' in file_data:
+                tag_dict['album_gain'] = parsed_dict['replaygain_album_gain'][0:-3]
+            if 'WM/Comment' in file_data:
+                tag_dict['comment'] = parsed_dict['WM/Comment']
+            if 'WM/Picture' in file_data:
+                tag_dict['album_art'] = "ALBUM_ART"
+            else:
+                tag_dict['album_art'] = "MISSING_ART"
+    except (OSError, ValueError, mutagen.MutagenError) as exc:
         print(f"~!ERROR!~ input: '{media_path}' {sys.exc_info()[0]} {exc}")
     return tag_dict
 
@@ -404,7 +461,7 @@ def get_sha256_hash(input_path: pathlib.Path) -> str:
 
 
 def get_all_media_paths(input_path: pathlib.Path) -> list:
-    """Find all media files with extension: [.mp3, .m4a, or .flac]."""
+    """Find all media files with extension: [.mp3, .m4a, .flac, .wma]."""
     all_media_paths = []
     for file_ext in AUDIO_EXT:
         path_list = [p.absolute() for p in

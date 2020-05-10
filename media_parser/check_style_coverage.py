@@ -8,10 +8,7 @@ import subprocess
 import time
 import pathlib
 from pathvalidate import sanitize_filename
-
-# ./test/check_style_coverage.py import from parent /custom folder
-from lib.file_tools import get_files, save_output_txt
-from lib.config import IS_WINDOWS, show_header
+from lib import config, file_tools
 
 BASE_DIR, SCRIPT_NAME = os.path.split(os.path.abspath(__file__))
 PARENT_PATH, CURR_DIR = os.path.split(BASE_DIR)
@@ -57,13 +54,6 @@ class Reporter:
         output = self.run_command(command=sys_call)
         return output
 
-    def run_check_bandit(self, src_path: pathlib.Path):
-        """Run bandit security checks."""
-        options = ''
-        sys_call = f"bandit {options} {str(src_path)}"
-        output = self.run_command(command=sys_call)
-        return output
-
     def run_check_coverage(self, src_path: pathlib.Path,
                            dst_dir: pathlib.Path):
         """Run code coverage checks."""
@@ -91,22 +81,22 @@ class Reporter:
         if isinstance(input_path, pathlib.Path) and input_path:
             if input_path.exists() and input_path.is_dir():
                 all_tests = []
-                for py_path in get_files(input_path, '.py'):
+                for py_path in file_tools.get_files(input_path, '.py'):
                     if py_path.exists() and py_path.is_file():
                         outfile = sanitize_filename(f"{py_path.name}_pep.log")
                         output = self.run_check_flake8(py_path)
                         output += self.run_check_lint(py_path)
                         all_tests.append(output)
                         if output and ('10.00/10' not in output):
-                            save_output_txt(str(output_path),
-                                            outfile,
-                                            str(output),
-                                            delim_tag=True,
-                                            replace_ext=False)
+                            file_tools.save_output_txt(str(output_path),
+                                                       outfile,
+                                                       str(output),
+                                                       delim_tag=True,
+                                                       replace_ext=False)
                 if any(len(t) > 0 for t in all_tests):
-                    print(f"flake8 ERRORS found.")
+                    print("flake8 ERRORS found.")
                 else:
-                    print(f"all flake8 tests PASSED.")
+                    print("all flake8 tests PASSED.")
             else:
                 print(f"input directory: '{input_path}' not found...")
 
@@ -116,7 +106,7 @@ def cleanup_prior(clean_path: pathlib.Path):
     if isinstance(clean_path, pathlib.Path) and clean_path:
         if clean_path.exists() and clean_path.is_dir():
             try:
-                if IS_WINDOWS:
+                if config.IS_WINDOWS:
                     if clean_path.exists():
                         shutil.rmtree(clean_path)
                     if not clean_path.exists():
@@ -142,9 +132,9 @@ def prompt_path_input(input_path: pathlib.Path, skip_ui: bool = True) -> list:
 def main():
     """Driver to check both code style and coverage."""
     print(f"{SCRIPT_NAME} starting...")
-    show_header(SCRIPT_NAME)
+    config.show_header(SCRIPT_NAME)
     check_style = True
-    check_coverage = IS_WINDOWS
+    check_coverage = config.IS_WINDOWS
     # prompt_path_input() option: 'input' subfolder
     input_path = prompt_path_input(input_path=pathlib.Path(PARENT_PATH))[0]
     start = time.perf_counter()
