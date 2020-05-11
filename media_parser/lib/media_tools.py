@@ -144,7 +144,7 @@ def convert_flac_m4a_rating(input_rating: str = 'default') -> str:
     return rating
 
 
-def export_tags(input_path: pathlib.Path, file_data: mutagen.File) -> None:
+def export_tags(input_path: pathlib.Path) -> None:
     """Dump media tags to text files."""
     show_methods(inspect.currentframe().f_code.co_name)
     if isinstance(input_path, pathlib.Path) and input_path:
@@ -152,6 +152,7 @@ def export_tags(input_path: pathlib.Path, file_data: mutagen.File) -> None:
             curr_dir = input_path.parts[-1]
             output_path = os.path.join(str(input_path.parent),
                                        f"~{curr_dir}_tags.txt")
+            file_data = mutagen.File(str(input_path))
             tag_data = str(file_data.tags)
             with open(output_path, 'w', encoding='utf-8') as txt_file:
                 txt_file.write(tag_data)
@@ -167,55 +168,60 @@ def dump_mp3_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
         file_data = mutagen.File(media_path)
         if str(media_path.suffix).lower() == '.mp3':
             audio = mutagen.mp3.MP3(media_path)
+            parsed_dict = OrderedDict([(key, str(val)) for key, val
+                                       in file_data.tags.items()])
+            #for key, val in parsed_dict.items():
+            #    print(f"{key}: \t{type(val)} \t'{val}'")
             hhmmss = str(datetime.timedelta(seconds=audio.info.length))
-            tag_dict['track_length'] = str(hhmmss.split('.')[0])
-            if 'TPE1' in file_data:
-                tag_dict['artist'] = str(file_data['TPE1'][0])
-            if 'TALB' in file_data:
-                tag_dict['album'] = str(file_data['TALB'][0])
-            if 'TIT2' in file_data:
-                tag_dict['title'] = str(file_data['TIT2'][0])
-            if 'TCOM' in file_data:
-                tag_dict['composer'] = str(file_data['TCOM'][0])
-            if 'TPE3' in file_data:
-                tag_dict['conductor'] = str(file_data['TPE3'][0])
-            if 'TCON' in file_data:
-                tag_dict['genre'] = str(file_data['TCON'][0])
-            if 'TSSE' in file_data:
-                tag_dict['encoder'] = str(file_data['TSSE'][0]).strip('\n')
-            if 'TENC' in file_data:
-                tag_dict['encoder'] = str(file_data['TENC'][0]).strip('\n')
-            if 'TDRC' in file_data:
-                tag_dict['year'] = str(file_data['TDRC'][0])
+            tag_dict['track_length'] = hhmmss.split('.')[0]
+            if 'TPE1' in parsed_dict:
+                tag_dict['artist'] = parsed_dict['TPE1']
+            if 'TALB' in parsed_dict:
+                tag_dict['album'] = parsed_dict['TALB']
+            if 'TIT2' in parsed_dict:
+                tag_dict['title'] = parsed_dict['TIT2']
+            if 'TCOM' in parsed_dict:
+                tag_dict['composer'] = parsed_dict['TCOM']
+            if 'TPE3' in parsed_dict:
+                tag_dict['conductor'] = parsed_dict['TPE3']
+            if 'TCON' in parsed_dict:
+                tag_dict['genre'] = parsed_dict['TCON']
+            if 'TSSE' in parsed_dict:
+                tag_dict['encoder'] = parsed_dict['TSSE'].strip('\n')
+            if 'TENC' in parsed_dict:
+                tag_dict['encoder'] = parsed_dict['TENC'].strip('\n')
+            if 'TDRC' in parsed_dict:
+                tag_dict['year'] = parsed_dict['TDRC']
                 if len(tag_dict['year']) > 4:
                     tag_dict['year'] = tag_dict['year'][0:4]
-            if 'TRCK' in file_data:
-                track_str = str(file_data['TRCK'][0])
+            if 'TRCK' in parsed_dict:
+                track_str = str(parsed_dict['TRCK'])
                 if '/' in track_str:
-                    tag_dict['track'] = int(track_str.split('/')[0])
+                    tag_dict['track'] = track_str.split('/')[0]
                 else:
-                    tag_dict['track'] = int(track_str)
+                    tag_dict['track'] = track_str
             rate_key = 'POPM:no@email'
-            if rate_key in file_data:
-                rating_str = str(file_data[rate_key]).split(",")[1]
+            if rate_key in parsed_dict:
+                rating_str = parsed_dict[rate_key].split(",")[1]
                 rating_str = rating_str.split("=")[1]
                 tag_dict['rating'] = convert_mp3_rating(rating_str)
             else:
                 tag_dict['rating'] = convert_mp3_rating('default')
             trpg_key = 'TXXX:replaygain_track_gain'
-            if trpg_key in file_data:
-                tag_dict['track_gain'] = str(file_data[trpg_key])[:-3]
+            if trpg_key in parsed_dict:
+                tag_dict['track_gain'] = parsed_dict[trpg_key][:-3]
             arpg_key = 'TXXX:replaygain_album_gain'
-            if arpg_key in file_data:
-                tag_dict['album_gain'] = str(file_data[arpg_key])[:-3]
-            if 'COMM::XXX' in file_data:
-                tag_dict['comment'] = str(file_data['COMM::XXX'][0])
-            if 'APIC:' in file_data:
+            if arpg_key in parsed_dict:
+                tag_dict['album_gain'] = parsed_dict[arpg_key][:-3]
+            if 'COMM::XXX' in parsed_dict:
+                tag_dict['comment'] = parsed_dict['COMM::XXX']
+            if 'APIC:' in parsed_dict:
                 tag_dict['album_art'] = "ALBUM_ART"
             else:
                 tag_dict['album_art'] = "MISSING_ART"
     except (OSError, ValueError, mutagen.MutagenError) as exc:
         print(f"~!ERROR!~ input: '{media_path}' {sys.exc_info()[0]} {exc}")
+        export_tags(media_path)
     return tag_dict
 
 
@@ -223,55 +229,61 @@ def dump_m4a_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
     """Parses M4A tag data of interest into dictionary mapping."""
     show_methods(inspect.currentframe().f_code.co_name)
     try:
-        file_data = mutagen.File(media_path)
+        # file_data = mutagen.File(media_path)
         if str(media_path.suffix).lower() == '.m4a':
             audio = mutagen.mp4.MP4(media_path)
+            parsed_dict = OrderedDict([(key, str(val[0])) for key, val
+                                       in audio.tags.items()
+                                       if type(val) is list])
+            # for key, val in audio.tags.items():
+            #    print(f"{key}: type: {type(val)}  '{val}'")
             hhmmss = str(datetime.timedelta(seconds=audio.info.length))
-            tag_dict['track_length'] = str(hhmmss.split('.')[0])
-            if '©ART' in file_data:
-                tag_dict['artist'] = str(file_data['©ART'][0])
-            if '©alb' in file_data:
-                tag_dict['album'] = str(file_data['©alb'][0])
-            if '©nam' in file_data:
-                tag_dict['title'] = str(file_data['©nam'][0])
-            if '©wrt' in file_data:
-                tag_dict['composer'] = str(file_data['©wrt'][0])
+            tag_dict['track_length'] = hhmmss.split('.')[0]
+            if '©ART' in parsed_dict:
+                tag_dict['artist'] = parsed_dict['©ART']
+            if '©alb' in parsed_dict:
+                tag_dict['album'] = parsed_dict['©alb']
+            if '©nam' in parsed_dict:
+                tag_dict['title'] = parsed_dict['©nam']
+            if '©wrt' in parsed_dict:
+                tag_dict['composer'] = parsed_dict['©wrt']
             con_key = '----:com.apple.iTunes:CONDUCTOR'
-            if con_key in file_data:
-                tag_dict['conductor'] = str(file_data[con_key][0])[2:-1]
-            if '©gen' in file_data:
-                tag_dict['genre'] = str(file_data['©gen'][0])
-            if '©too' in file_data:
-                tag_dict['encoder'] = str(file_data['©too'][0]).strip('\n')
-            if '©day' in file_data:
-                tag_dict['year'] = int(file_data['©day'][0][0:4])
-            if 'trkn' in file_data:
-                track_str = str(file_data['trkn'][0])[1:-1].split(",")[0]
+            if con_key in parsed_dict:
+                tag_dict['conductor'] = parsed_dict[con_key][2:-1]
+            if '©gen' in parsed_dict:
+                tag_dict['genre'] = parsed_dict['©gen']
+            if '©too' in parsed_dict:
+                tag_dict['encoder'] = parsed_dict['©too'].strip('\n')
+            if '©day' in parsed_dict:
+                tag_dict['year'] = parsed_dict['©day'][0:4]
+            if 'trkn' in parsed_dict:
+                track_str = parsed_dict['trkn'][1:-1].split(",")[0]
                 if '/' in track_str:
-                    tag_dict['track'] = int(track_str.split('/')[0])
+                    tag_dict['track'] = track_str.split('/')[0]
                 else:
-                    tag_dict['track'] = int(track_str)
-            if 'rate' in file_data:
-                rating_str = str(file_data['rate'][0])
+                    tag_dict['track'] = track_str
+            if 'rate' in parsed_dict:
+                rating_str = parsed_dict['rate']
                 tag_dict['rating'] = convert_flac_m4a_rating(rating_str)
             else:
                 tag_dict['rating'] = convert_flac_m4a_rating('default')
             trpg_key = '----:com.apple.iTunes:replaygain_track_gain'
-            if trpg_key in file_data:
-                track_gain = str(file_data[trpg_key][0])[2:-13]
+            if trpg_key in parsed_dict:
+                track_gain = parsed_dict[trpg_key][2:-13]
                 tag_dict['track_gain'] = f"{track_gain}"
             arpg_key = '----:com.apple.iTunes:replaygain_album_gain'
-            if arpg_key in file_data:
-                album_gain = str(file_data[arpg_key][0])[2:-13]
+            if arpg_key in parsed_dict:
+                album_gain = parsed_dict[arpg_key][2:-13]
                 tag_dict['album_gain'] = f"{album_gain}"
-            if '©cmt' in file_data:
-                tag_dict['comment'] = str(file_data['©cmt'][0])
-            if 'covr' in file_data:
+            if '©cmt' in parsed_dict:
+                tag_dict['comment'] = parsed_dict['©cmt']
+            if 'covr' in parsed_dict:
                 tag_dict['album_art'] = "ALBUM_ART"
             else:
                 tag_dict['album_art'] = "MISSING_ART"
     except (OSError, ValueError, mutagen.MutagenError) as exc:
         print(f"~!ERROR!~ input: '{media_path}' {sys.exc_info()[0]} {exc}")
+        export_tags(media_path)
     return tag_dict
 
 
@@ -282,45 +294,49 @@ def dump_flac_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
         file_data = mutagen.File(media_path)
         if str(media_path.suffix).lower() == '.flac':
             audio = mutagen.flac.FLAC(media_path)
+            parsed_dict = OrderedDict([(key, str(val[0])) for key, val in
+                                       audio.tags.as_dict().items()])
+            # for key, val in parsed_dict.items():
+            #    print(f"{key}:  '{val}'")
             hhmmss = str(datetime.timedelta(seconds=audio.info.length))
-            tag_dict['track_length'] = str(hhmmss.split('.')[0])
-            if 'artist' in file_data:
-                tag_dict['artist'] = str(file_data['artist'][0])
-            if 'album' in file_data:
-                tag_dict['album'] = str(file_data['album'][0])
-            if 'title' in file_data:
-                tag_dict['title'] = str(file_data['title'][0])
-            if 'composer' in file_data:
-                tag_dict['composer'] = str(file_data['composer'][0])
-            if 'conductor' in file_data:
-                tag_dict['conductor'] = str(file_data['conductor'][0])
-            if 'genre' in file_data:
-                tag_dict['genre'] = str(file_data['genre'][0])
-            if 'encoder' in file_data:
-                tag_dict['encoder'] = str(file_data['encoder'][0]).strip('\n')
-            if 'date' in file_data:
-                tag_dict['year'] = int(file_data['date'][0][0:4])
-            if 'tracknumber' in file_data:
-                track_str = str(file_data['tracknumber'][0])
+            tag_dict['track_length'] = hhmmss.split('.')[0]
+            if 'artist' in parsed_dict:
+                tag_dict['artist'] = parsed_dict['artist']
+            if 'album' in parsed_dict:
+                tag_dict['album'] = parsed_dict['album']
+            if 'title' in parsed_dict:
+                tag_dict['title'] = parsed_dict['title']
+            if 'composer' in parsed_dict:
+                tag_dict['composer'] = parsed_dict['composer']
+            if 'conductor' in parsed_dict:
+                tag_dict['conductor'] = parsed_dict['conductor']
+            if 'genre' in parsed_dict:
+                tag_dict['genre'] = parsed_dict['genre']
+            if 'encoder' in parsed_dict:
+                tag_dict['encoder'] = parsed_dict['encoder'].strip('\n')
+            if 'date' in parsed_dict:
+                tag_dict['year'] = parsed_dict['date'][0:4]
+            if 'tracknumber' in parsed_dict:
+                track_str = parsed_dict['tracknumber']
                 if '/' in track_str:
-                    tag_dict['track'] = int(track_str.split('/')[0])
+                    tag_dict['track'] = track_str.split('/')[0]
                 else:
-                    tag_dict['track'] = int(track_str)
-            if 'rating' in file_data:
-                rating_str = str(file_data['rating'][0])
+                    tag_dict['track'] = track_str
+            if 'rating' in parsed_dict:
+                rating_str = parsed_dict['rating']
                 tag_dict['rating'] = convert_flac_m4a_rating(rating_str)
             else:
                 tag_dict['rating'] = convert_flac_m4a_rating('default')
             trpg_key = 'replaygain_track_gain'
-            if trpg_key in file_data:
-                track_gain = str(file_data[trpg_key][0])[0:-7]
+            if trpg_key in parsed_dict:
+                track_gain = parsed_dict[trpg_key][0:-7]
                 tag_dict['track_gain'] = f"{track_gain}"
             arpg_key = 'replaygain_album_gain'
-            if arpg_key in file_data:
-                album_gain = str(file_data[arpg_key][0])[0:-7]
+            if arpg_key in parsed_dict:
+                album_gain = parsed_dict[arpg_key][0:-7]
                 tag_dict['album_gain'] = f"{album_gain}"
-            if 'comment' in file_data:
-                tag_dict['comment'] = str(file_data['comment'][0])
+            if 'comment' in parsed_dict:
+                tag_dict['comment'] = parsed_dict['comment']
             file_pic = file_data.pictures
             if file_pic:
                 tag_dict['album_art'] = "ALBUM_ART"
@@ -328,6 +344,7 @@ def dump_flac_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
                 tag_dict['album_art'] = "MISSING_ART"
     except (OSError, ValueError, mutagen.MutagenError) as exc:
         print(f"~!ERROR!~ input: '{media_path}' {sys.exc_info()[0]} {exc}")
+        export_tags(media_path)
     return tag_dict
 
 
@@ -335,51 +352,53 @@ def dump_wma_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
     """Parses WMA tag data of interest into dictionary mapping."""
     show_methods(inspect.currentframe().f_code.co_name)
     try:
-        file_data = mutagen.File(media_path)
+
         if str(media_path.suffix).lower() == '.wma':
             audio = mutagen.asf.ASF(media_path)
             parsed_dict = OrderedDict([(key, str(val[0])) for key, val in
                                        audio.tags.as_dict().items()])
-            #for key, val in parsed_dict.items():
+            # for key, val in parsed_dict.items():
             #    print(f"{key}:  '{val}'")
             hhmmss = str(datetime.timedelta(seconds=audio.info.length))
-            #export_tags(media_path, file_data)
-            tag_dict['track_length'] = str(hhmmss.split('.')[0])
-            if 'Author' in file_data:
+            tag_dict['track_length'] = hhmmss.split('.')[0]
+            if 'Author' in parsed_dict:
                 tag_dict['artist'] = parsed_dict['Author']
-            if 'WM/AlbumTitle' in file_data:
+            if 'WM/AlbumTitle' in parsed_dict:
                 tag_dict['album'] = parsed_dict['WM/AlbumTitle']
-            if 'Title' in file_data:
+            if 'Title' in parsed_dict:
                 tag_dict['title'] = parsed_dict['Title']
-            if 'WM/Composer' in file_data:
+            if 'WM/Composer' in parsed_dict:
                 tag_dict['composer'] = parsed_dict['WM/Composer']
-            if 'WM/Conductor' in file_data:
+            if 'WM/Conductor' in parsed_dict:
                 tag_dict['conductor'] = parsed_dict['WM/Conductor']
-            if 'WM/Genre' in file_data:
+            if 'WM/Genre' in parsed_dict:
                 tag_dict['genre'] = parsed_dict['WM/Genre']
-            if 'WM/ToolName' in file_data:
+            if 'WM/ToolName' in parsed_dict:
                 tag_dict['encoder'] = parsed_dict['WM/ToolName']
-            if 'WM/Year' in file_data:
-                tag_dict['year'] = parsed_dict['WM/Year']
-            if 'WM/TrackNumber' in file_data:
-                tag_dict['track'] = int(parsed_dict['WM/TrackNumber'])
-            if 'SDB/Rating' in file_data:
-                rating_str = str(parsed_dict['SDB/Rating'])
+            if 'WM/Year' in parsed_dict:
+                tag_dict['year'] = parsed_dict['WM/Year'][0:4]
+            if 'WM/TrackNumber' in parsed_dict:
+                tag_dict['track'] = parsed_dict['WM/TrackNumber']
+            if 'SDB/Rating' in parsed_dict:
+                rating_str = parsed_dict['SDB/Rating']
                 tag_dict['rating'] = convert_flac_m4a_rating(rating_str)
             else:
                 tag_dict['rating'] = convert_flac_m4a_rating('default')
-            if 'replaygain_track_gain' in file_data:
-                tag_dict['track_gain'] = parsed_dict['replaygain_track_gain'][0:-3]
-            if 'replaygain_album_gain' in file_data:
-                tag_dict['album_gain'] = parsed_dict['replaygain_album_gain'][0:-3]
-            if 'WM/Comment' in file_data:
+            trpg_key = 'replaygain_track_gain'
+            if trpg_key in parsed_dict:
+                tag_dict['track_gain'] = parsed_dict[trpg_key][0:-3]
+            arpg_key = 'replaygain_album_gain'
+            if arpg_key in parsed_dict:
+                tag_dict['album_gain'] = parsed_dict[arpg_key][0:-3]
+            if 'WM/Comment' in parsed_dict:
                 tag_dict['comment'] = parsed_dict['WM/Comment']
-            if 'WM/Picture' in file_data:
+            if 'WM/Picture' in parsed_dict:
                 tag_dict['album_art'] = "ALBUM_ART"
             else:
                 tag_dict['album_art'] = "MISSING_ART"
     except (OSError, ValueError, mutagen.MutagenError) as exc:
         print(f"~!ERROR!~ input: '{media_path}' {sys.exc_info()[0]} {exc}")
+        export_tags(media_path)
     return tag_dict
 
 

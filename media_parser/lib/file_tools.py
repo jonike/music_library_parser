@@ -44,15 +44,15 @@ def build_index_alphabet() -> dict:
     max_cols = len(letters) * len(limited)
     alphabet_dict = OrderedDict()
     col_count = 0
-    for idx in range(1, max_cols, 1):
+    for i in range(1, max_cols, 1):
         first_letter = limited[col_count]
-        mod_idx = (idx % 26) - 1
+        mod_idx = (i % 26) - 1
         second_letter = letters[mod_idx]
         if col_count == 0:
-            alphabet_dict[idx] = f"{second_letter}"
+            alphabet_dict[i] = f"{second_letter}"
         else:
-            alphabet_dict[idx] = f"{first_letter}{second_letter}"
-        if (idx % len(letters) == 0) and (idx != 0):
+            alphabet_dict[i] = f"{first_letter}{second_letter}"
+        if (i % len(letters) == 0) and (i != 0):
             col_count += 1
     return alphabet_dict
 

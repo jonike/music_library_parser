@@ -23,7 +23,7 @@ __author__ = "averille"
 __email__ = "github.pdx@runbox.com"
 __status__ = "demo"
 __license__ = "MIT"
-__version__ = "1.4.4"
+__version__ = "1.4.5"
 
 
 __all__ = ['show_packages', 'get_login', 'get_isp_info', 'show_header']

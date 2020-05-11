@@ -17,8 +17,6 @@ from lib import config, file_tools, media_tools, user_input
 BASE_DIR, SCRIPT_NAME = os.path.split(os.path.abspath(__file__))
 PARENT_PATH, CURR_DIR = os.path.split(BASE_DIR)
 
-MAX_EXCEL_TAB_NODATE = 22  # '_12212019' = 9 chars
-MAX_EXCEL_TAB_DIR = 27
 MAX_EXCEL_TAB = 31
 ALPHABET = file_tools.build_index_alphabet()
 
@@ -135,8 +133,9 @@ def export_to_excel(output_path: pathlib.Path,
                               str(tags['album']), left_ctr)
                     ws1.write('G%d' % num,
                               str(tags['title']), left_ctr)
-                    ws1.write('H%d' % num,
-                              int(tags['track']), ctr_int)
+                    if len(tags['track']) > 0:
+                        ws1.write('H%d' % num,
+                                  int(tags['track']), ctr_int)
                     ws1.write('I%s' % num,
                               str(tags['track_length']), ctr_time)
                     ws1.write('J%d' % num,
@@ -145,7 +144,7 @@ def export_to_excel(output_path: pathlib.Path,
                               str(tags['genre_in_dict']), ctr)
                     ws1.write('L%d' % num,
                               str(tags['album_art']), ctr)
-                    if tags['year']:
+                    if len(tags['year']) > 0:
                         ws1.write('M%d' % num,
                                   int(tags['year']), ctr_int)
                     ws1.write('N%d' % num,
