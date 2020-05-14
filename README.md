@@ -37,6 +37,7 @@ def build_genre_dictionary() -> dict:
     genre_dict['Ravel']='Classical'
     genre_dict['Rimsky-Korsakov']='Classical'
     genre_dict['The Fall']='Post-Punk'
+    genre_dict['Sallie Ford & The Sound Outside'] = 'Rockabilly'
     ...
 ```
 
@@ -75,14 +76,21 @@ docker-compose down --remove-orphans
 
 * [MongoDB Shell Commands](https://docs.mongodb.com/manual/reference/mongo-shell/)
 ```
-use admin
-db.createUser({ user: "run_user_run", pwd: "run_pass_run", roles: [{ role: "dbAdminAnyDatabase", db: "admin" }]});
+sudo sed -i 's/port: 27017/port: 27018/g' /etc/mongod.conf
+sudo service mongod restart
+sudo lsof -iTCP -sTCP:LISTEN | grep mongod
+systemctl status mongod
+mongo admin --eval 'db.createUser({user:"run_admin_run",pwd:"run_pass_run",roles:["dbAdminAnyDatabase"]});'
 ```
 
 * [Install Postgres](https://www.postgresql.org/download/)
 
 * [Postgres Shell Commands](https://www.postgresql.org/docs/12/app-psql.html)
 ```
+sudo sed -i 's/port = 5432/port = 5433/g' /etc/postgresql/12/main/postgresql.conf
+sudo service postgresql restart
+sudo lsof -iTCP -sTCP:LISTEN | grep postgres
+systemctl status postgres
 psql -c "CREATE DATABASE media_db;" -U postgres
 psql -c "CREATE USER run_admin_run WITH PASSWORD 'run_pass_run';" -U postgres
 ```

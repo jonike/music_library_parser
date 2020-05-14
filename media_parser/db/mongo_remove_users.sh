@@ -3,7 +3,7 @@
 printf "script: $BASH_SOURCE starting\n"
 START=$(date +%s.%N)
 
-printf "removing pyapp users from admin/media_db databases\n"
+printf "removing users from admin/media_db databases\n"
 for database in admin media_db
 do
     for user in run_admin_run rw_user_run
@@ -12,7 +12,7 @@ do
     done
 done
 
-printf "recreating pyapp users to admin/media_db databases\n"
+printf "recreating users to admin/media_db databases\n"
 for script in mongo_create_admin mongo_create_rwuser
 do
     mongo admin $script.js

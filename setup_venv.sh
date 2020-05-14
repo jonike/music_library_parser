@@ -1,7 +1,10 @@
 #!/bin/bash
-## Requirements: python-pip, virtualenv
 ## Create a virtualenv, and activate:
-sudo apt-get install libpq-dev python-dev
-virtualenv -p /usr/bin/python3 venv
+sudo apt-get -y update
+sudo apt-get -y install python3.7
+sudo apt-get -y install build-essential libpq-dev libssl-dev gcc-multilib openssl libffi-dev zlib1g-dev
+sudo apt-get -y install python3-pip python3-dev
+sudo apt-get -y install python-virtualenv virtualenvwrapper
+virtualenv -p /usr/bin/python3.7 venv
 source venv/bin/activate
-pip install -r requirements.txt
+sudo -H pip3 install -r requirements.txt

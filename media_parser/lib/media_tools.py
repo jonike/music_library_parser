@@ -170,8 +170,6 @@ def dump_mp3_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
             audio = mutagen.mp3.MP3(media_path)
             parsed_dict = OrderedDict([(key, str(val)) for key, val
                                        in file_data.tags.items()])
-            #for key, val in parsed_dict.items():
-            #    print(f"{key}: \t{type(val)} \t'{val}'")
             hhmmss = str(datetime.timedelta(seconds=audio.info.length))
             tag_dict['track_length'] = hhmmss.split('.')[0]
             if 'TPE1' in parsed_dict:
@@ -229,14 +227,11 @@ def dump_m4a_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
     """Parses M4A tag data of interest into dictionary mapping."""
     show_methods(inspect.currentframe().f_code.co_name)
     try:
-        # file_data = mutagen.File(media_path)
         if str(media_path.suffix).lower() == '.m4a':
             audio = mutagen.mp4.MP4(media_path)
             parsed_dict = OrderedDict([(key, str(val[0])) for key, val
                                        in audio.tags.items()
                                        if type(val) is list])
-            # for key, val in audio.tags.items():
-            #    print(f"{key}: type: {type(val)}  '{val}'")
             hhmmss = str(datetime.timedelta(seconds=audio.info.length))
             tag_dict['track_length'] = hhmmss.split('.')[0]
             if '©ART' in parsed_dict:
@@ -296,8 +291,6 @@ def dump_flac_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
             audio = mutagen.flac.FLAC(media_path)
             parsed_dict = OrderedDict([(key, str(val[0])) for key, val in
                                        audio.tags.as_dict().items()])
-            # for key, val in parsed_dict.items():
-            #    print(f"{key}:  '{val}'")
             hhmmss = str(datetime.timedelta(seconds=audio.info.length))
             tag_dict['track_length'] = hhmmss.split('.')[0]
             if 'artist' in parsed_dict:
@@ -357,8 +350,6 @@ def dump_wma_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
             audio = mutagen.asf.ASF(media_path)
             parsed_dict = OrderedDict([(key, str(val[0])) for key, val in
                                        audio.tags.as_dict().items()])
-            # for key, val in parsed_dict.items():
-            #    print(f"{key}:  '{val}'")
             hhmmss = str(datetime.timedelta(seconds=audio.info.length))
             tag_dict['track_length'] = hhmmss.split('.')[0]
             if 'Author' in parsed_dict:

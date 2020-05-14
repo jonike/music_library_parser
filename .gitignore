@@ -5,6 +5,7 @@ tests/output
 venv
 docker_cmds.txt
 setup.py
+desktop.ini
 
 #IDE metadata
 .idea/

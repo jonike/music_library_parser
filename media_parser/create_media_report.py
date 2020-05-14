@@ -197,7 +197,7 @@ def export_to_excel(output_path: pathlib.Path,
                                                 'value': 'ascii',
                                                 'format': format_red})
         # directory size worksheet
-        ws2 = wb.add_worksheet(f"{tab_name}_dir"[:MAX_EXCEL_TAB])
+        ws2 = wb.add_worksheet(f"dir_{tab_name}"[:MAX_EXCEL_TAB])
         ws2.freeze_panes(1, 0)
         ws2.set_column('A:A', 8)  # Index
         ws2.set_column('B:B', 24)  # Directory Size
@@ -229,9 +229,9 @@ def export_to_excel(output_path: pathlib.Path,
         status = f"SUCCESS! {def_name}() " \
                  f"'{os.sep.join(output_filepath.parts[-3:])}'\n"
     except (OSError, xlsxwriter.exceptions.FileCreateError,
+            xlsxwriter.exceptions.InvalidWorksheetName,
             UnicodeDecodeError, ValueError) as exc:
-        status += f"~!ERROR!~ {def_name}() " \
-                  f"{tags} {sys.exc_info()[0]}\n{exc}\n"
+        status += f"~!ERROR!~ {def_name}() {sys.exc_info()[0]} {exc}\n"
     print(status, end='')
     return status
 
@@ -292,7 +292,7 @@ def main():
                 dir_stat_list = file_tools.get_dir_stats(input_path)
                 stat_list, path_str = media_tools.build_stat_list(input_path)
                 log_str += path_str
-                trunc_path = f"{'-'.join(input_path.parts[-3:])}"
+                trunc_path = f"{'-'.join(input_path.parts[-2:])}"
                 if config.DEMO_ENABLED:
                     output_path = pathlib.Path(PARENT_PATH, 'data', 'output')
                     json_path = pathlib.Path(str(output_path), 'json')

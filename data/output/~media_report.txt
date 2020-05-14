@@ -1,4 +1,4 @@
-path_00: 'music_library\data\input'
+path_00: 'music_library_parser\data\input'
 found: '12' directories [125.77 MiB]
 found: '04' file extensions: 
 	0003	.flac files
@@ -21,4 +21,4 @@ build_stat_list()
 SUCCESS! export_to_json() 'data\output\json'
 SUCCESS! export_to_excel() 'data\output\~media_report.xlsx'
 
-path_00: 'music_library\data\input' runtime:  0.81 seconds
+path_00: 'music_library_parser\data\input' runtime:  1.05 seconds
