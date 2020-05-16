@@ -25,9 +25,9 @@ class ConfigClient:
                 cls.__cp = configparser.ConfigParser()
                 cls.__cp.read(config_path)
                 cls.__client_id = cls.__cp.get('spotify.com',
-                                                 'SPOTIPY_CLIENT_ID')
+                                               'SPOTIPY_CLIENT_ID')
                 cls.__client_secret = cls.__cp.get('spotify.com',
-                                                     'SPOTIPY_CLIENT_SECRET')
+                                                   'SPOTIPY_CLIENT_SECRET')
                 cls.__is_config_valid = True
             else:
                 print(f"'{os.sep.join(config_path.parts[-3:])}' missing ")
@@ -68,7 +68,7 @@ class SpotifyClient:
                 cls.__client_id = cls.__cc.get_client_id()
                 cls.__client_secret = cls.__cc.get_client_secret()
                 cls.__scc = SpotifyClientCredentials(cls.__client_id,
-                                                      cls.__client_secret)
+                                                     cls.__client_secret)
                 cls.__sp = spotipy.Spotify(
                     client_credentials_manager=cls.__scc)
                 cls.bjork_urn = 'spotify:artist:7w29UYBi0qsHi5RTcv3lmA'
@@ -104,7 +104,7 @@ class SpotifyClient:
         if cls.run_spotify():
             try:
                 results = cls.__sp.search(q=f"artist:{artist_name}",
-                                           type='artist')
+                                          type='artist')
                 # print(f"get_artist_id: '{artist_name}' '{results}'")
                 items = results['artists']['items']
                 if len(items) > 0:
@@ -122,7 +122,7 @@ class SpotifyClient:
         if cls.run_spotify():
             try:
                 results = cls.__sp.artist_albums(artist_id=artist_id,
-                                                  limit=50)
+                                                 limit=50)
                 albums = results['items']
                 for album in albums:
                     candidate_album = album['name']

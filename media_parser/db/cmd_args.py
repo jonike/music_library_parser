@@ -13,7 +13,7 @@ TWO_PARENT_PATH = os.sep.join(pathlib.Path(BASE_DIR).parts[:-2])
 __all__ = ['get_cmd_args']
 
 
-def get_cmd_args() -> list:
+def get_cmd_args(port_num: int = 27017) -> list:
     """Command line input on directory to scan recursively for media files."""
     def_name = inspect.currentframe().f_code.co_name
     parser = argparse.ArgumentParser(description='media_db_parser')
@@ -21,8 +21,9 @@ def get_cmd_args() -> list:
                         type=str, default='localhost',
                         help="server")
     parser.add_argument("-p", "--port_num",
-                        type=int, default=27017,
+                        type=int, default=port_num,
                         help="port_num")
+                        # 5433 5432 27017 27018
     parser.add_argument("-d", "--database",
                         type=str, default='media_db',
                         help="database")

@@ -20,7 +20,7 @@ services:
     image: mongo:4.2-bionic
     ports:
       - "27017:27017"
-    command: mongod --port 27017
+    command: ["mongod", "--port", "27017"]
     environment:
      - MONGO_INITDB_ROOT_USERNAME=run_admin_run
      - MONGO_INITDB_ROOT_PASSWORD=run_pass_run
@@ -47,6 +47,7 @@ services:
     networks:
       - frontend
       - backend
+      
   postgres:
     image: postgres:12.2
     ports:
@@ -59,8 +60,7 @@ services:
       - ./data/output:/data/output
     networks:
       - backend
-
-
+      
 networks:
   frontend:
     driver: bridge

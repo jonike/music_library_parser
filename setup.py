@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='music_library_parser',
-    version='1.4.6',
+    version='1.4.7',
     packages=['media_parser', 'media_parser.db',
               'media_parser.lib', 'tests'],
     url='https://github.com/github-pdx/music_library_parser',

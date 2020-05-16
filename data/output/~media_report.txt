@@ -18,7 +18,7 @@ build_stat_list()
    parsing: [0010 of 0012]  83.3% '01~Human Behaviour~Björk~Debut~1993.flac'
    parsing: [0011 of 0012]  91.7% '01~Walkin' After Midnight~Patsy Cline~Definitive Collection~2004.flac'
    parsing: [0012 of 0012] 100.0% '01~I Swear~Sallie Ford & The Sound Outside~Dirty Radio~2011.wma'
-SUCCESS! export_to_json() 'data\output\json'
+SUCCESS! export_to_json() 'music_library_parser\data\output'
 SUCCESS! export_to_excel() 'data\output\~media_report.xlsx'
 
-path_00: 'music_library_parser\data\input' runtime:  1.05 seconds
+path_00: 'music_library_parser\data\input' runtime:  0.74 seconds

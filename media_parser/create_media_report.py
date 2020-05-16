@@ -7,7 +7,6 @@ import math
 import sys
 import time
 import pathlib
-import json
 import pandas
 from dateutil import parser
 from pathvalidate import sanitize_filename
@@ -241,24 +240,15 @@ def export_to_json(output_path: pathlib.Path, stat_list_of_dicts: list) -> str:
     def_name = inspect.currentframe().f_code.co_name
     status = ''
     try:
-        export_panda = True
         if isinstance(output_path, pathlib.Path) and output_path:
             if not output_path.exists():
                 os.makedirs(output_path)
         if isinstance(stat_list_of_dicts, list) and stat_list_of_dicts:
             if len(stat_list_of_dicts) > 0:
-                for tag_dict in stat_list_of_dicts:
-                    json_filename = f"{tag_dict['hash']}.json"
-                    json_path = pathlib.Path(output_path, json_filename)
-                    if export_panda:
-                        # 1D=series, 2D=dataframe
-                        series = pandas.Series(tag_dict)
-                        series.to_json(json_path, orient='columns')
-                    else:
-                        json_tags = json.dumps(tag_dict, ensure_ascii=False)
-                        with open(json_path, 'w', encoding='utf-8') as _file:
-                            _file.write(json_tags)
-                        _file.close()
+                json_path = pathlib.Path(output_path, "media_lib.json")
+                # 1D=series, 2D=dataframe
+                df = pandas.DataFrame(stat_list_of_dicts)
+                df.to_json(json_path, orient='split')
                 status = f"SUCCESS! {def_name}() " \
                          f"'{os.sep.join(output_path.parts[-3:])}'\n"
             else:
@@ -295,7 +285,7 @@ def main():
                 trunc_path = f"{'-'.join(input_path.parts[-2:])}"
                 if config.DEMO_ENABLED:
                     output_path = pathlib.Path(PARENT_PATH, 'data', 'output')
-                    json_path = pathlib.Path(str(output_path), 'json')
+                    json_path = pathlib.Path(output_path)
                     report_name = 'media_report'
                 else:
                     output_path = pathlib.Path(input_path)

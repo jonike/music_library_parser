@@ -10,7 +10,6 @@ from bokeh.layouts import gridplot
 from bokeh.plotting import figure, output_file, show
 from db import cmd_args, mongodb_api
 
-
 np.seterr(divide='ignore', invalid='ignore')
 np.set_printoptions(precision=4)
 np.set_printoptions(formatter={'float': '{:0.2f}'.format})
@@ -103,16 +102,16 @@ def main():
     """"Driver for plotting normal distribution based on track length."""
     print(f"{SCRIPT_NAME} starting...")
     start = time.perf_counter()
-    args = cmd_args.get_cmd_args()
+    args = cmd_args.get_cmd_args(port_num=27017)
     path_list = [args.file_path]
     username = 'run_admin_run'
     password = 'run_pass_run'
     server = args.server
     port_num = args.port_num
     mdb = mongodb_api.MongoMedia(server=server,
-                             port_num=port_num,
-                             username=username,
-                             password=password)
+                                 port_num=port_num,
+                                 username=username,
+                                 password=password)
     if mdb.is_connected():
         hhmmss_list = mdb.get_object_by_key('track_length')
         if hhmmss_list:
@@ -134,7 +133,7 @@ def main():
                           plot_height=400,
                           toolbar_location=None))
         else:
-            print(f"{mongodb_api.show_collections()}")
+            print(f"{mdb.show_collections()}")
     end = time.perf_counter() - start
     print(f"{SCRIPT_NAME} finished in {end:0.2f} seconds")
 

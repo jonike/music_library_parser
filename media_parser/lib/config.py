@@ -19,11 +19,11 @@ VERBOSE = False
 DEMO_ENABLED = True
 TEMP_TAG = '~'
 
-__author__ = "averille"
+__author__ = "github.pdx"
 __email__ = "github.pdx@runbox.com"
 __status__ = "demo"
 __license__ = "MIT"
-__version__ = "1.4.6"
+__version__ = "1.4.7"
 
 
 __all__ = ['show_packages', 'get_login', 'get_isp_info', 'show_header']

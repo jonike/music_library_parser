@@ -16,12 +16,12 @@ ALBUM_SELECT = (f"SELECT * FROM {ALBUM} "
 TRACK_SELECT = (f"SELECT * FROM {TRACK} "
                 f"WHERE title = (%s)")
 
-TRACK_SELECT2 = (f"SELECT s.track_id, a.artist_id "
-                 f"FROM track t "
-                 f"JOIN artist a "
-                 f"ON t.artist_id = a.artist_id "
-                 f"WHERE s.title = (%s) and "
-                 f"a.artist = (%s) and t.track_length = (%s);")
+TRACK_SELECT2 = ("SELECT s.track_id, a.artist_id "
+                 "FROM track t "
+                 "JOIN artist a "
+                 "ON t.artist_id = a.artist_id "
+                 "WHERE s.title = (%s) and "
+                 "a.artist = (%s) and t.track_length = (%s);")
 
 GENRE_SELECT = (f"SELECT * FROM {GENRE} "
                 f"WHERE genre = (%s)")

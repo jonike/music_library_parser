@@ -6,9 +6,10 @@ import os
 import sys
 import pathlib
 from lib import config, user_input, media_tools
-from db import cmd_args, mongodb_api
+from db import mongodb_api, cmd_args
 
 BASE_DIR, SCRIPT_NAME = os.path.split(os.path.abspath(__file__))
+TWO_PARENT_PATH = os.sep.join(pathlib.Path(BASE_DIR).parts[:-2])
 PARENT_PATH, CURR_DIR = os.path.split(BASE_DIR)
 
 __all__ = ['insert_files_mongodb', 'insert_tags_mongodb', 'build_media_list']
@@ -57,7 +58,7 @@ def main():
     print(f"{SCRIPT_NAME} starting...")
     start = time.perf_counter()
     config.show_header(SCRIPT_NAME)
-    args = cmd_args.get_cmd_args()
+    args = cmd_args.get_cmd_args(port_num=27017)
     path_list = [args.file_path]
     server = args.server
     port_num = args.port_num
@@ -66,7 +67,8 @@ def main():
     password = args.password
     if config.DEMO_ENABLED:
         data_path = pathlib.Path(PARENT_PATH, 'data', 'input')
-        # path_list = ui.prompt_path_input(input_path=data_path, skip_ui=True)
+        path_list = user_input.prompt_path_input(input_path=data_path,
+                                                 skip_ui=True)
     else:
         path_list = user_input.get_test_directories()
     for num, input_path in enumerate(path_list):

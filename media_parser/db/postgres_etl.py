@@ -19,24 +19,12 @@ def main():
     """Driver to generate Postgres database records from JSON source files."""
     print(f"{SCRIPT_NAME} starting...")
     start = time.perf_counter()
-    args = cmd_args.get_cmd_args()
+    args = cmd_args.get_cmd_args(port_num=5432)
     server = args.server
     port_num = args.port_num
     database = args.database
     username = args.username
     password = args.password
-    if DEMO_ENABLED and False:
-        pg_api = postgres_api.PostgresMedia(username='postgres',
-                                            password='postgres',
-                                            db_name='postgres')
-        if pg_api.is_connected():
-            pg_api.create_role(username='media_parser',
-                               password='run_pass_run')
-            pg_api.recreate_database(db_name='media_db',
-                                     owner='media_parser')
-            pg_api.create_role(username='run_admin_run',
-                               password='run_pass_run')
-            pg_api.close()
     pg_api = postgres_api.PostgresMedia(hostname=server,
                                         port_num=port_num,
                                         username=username,
@@ -51,7 +39,7 @@ def main():
         spotify = spotify_client.SpotifyClient(config_path)
         pg_api.drop_tables()
         pg_api.create_tables()
-        json_path = pathlib.Path(TWO_PARENT_PATH, 'data', 'output', 'json')
+        json_path = pathlib.Path(TWO_PARENT_PATH, 'data', 'output')
         pg_api.process_data(json_path, spotify)
         pg_api.show_database_status()
         if DEMO_ENABLED:

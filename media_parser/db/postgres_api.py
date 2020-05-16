@@ -156,17 +156,16 @@ class PostgresMedia:
     def process_file(cls, input_path: pathlib.Path, spotify: SpotifyClient):
         """Driver to parse JSON file and commit to Postgres database."""
         try:
-            series = pandas.read_json(input_path, lines=True,
-                                      encoding='utf-8',
-                                      orient='columns')
-            if spotify.run_spotify():
-                artist_name = series['artist'].values[0]
-                series['artist_id'].values[0] = spotify.get_artist_id(
-                    artist_name)
-                # series.to_json(input_path, orient='columns')
-            for table, headers in sql.HEADERS.items():
-                data = series[headers].values[0].tolist()
-                cls.db_cur.execute(sql.INSERTS[table], data)
+            df = pandas.read_json(input_path, lines=False,
+                                  encoding='utf-8',
+                                  orient='split')
+            for column, series in df.iterrows():
+                if spotify.run_spotify():
+                    artist_name = series['artist']
+                    series['artist_id'] = spotify.get_artist_id(artist_name)
+                for table, headers in sql.HEADERS.items():
+                    data = series[headers]
+                    cls.db_cur.execute(sql.INSERTS[table], data)
         except (IndexError, KeyError, psycopg2.OperationalError):
             cls.__show_exception()
 
