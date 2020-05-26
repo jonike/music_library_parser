@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-"""MongoDB module to read/write data in to a NoSQL database."""
+"""MongoDB module to read/write data NoSQL database."""
 import inspect
 import sys
 import pathlib

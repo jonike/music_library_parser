@@ -1,3 +1,4 @@
+"""Unit tests to insert media tags into MongoDB media_db instance."""
 import unittest
 import os
 import pathlib
@@ -13,7 +14,7 @@ PARENT_PATH, CURR_DIR = os.path.split(BASE_DIR)
 
 
 class TestDatabase(unittest.TestCase):
-    """Test case class for /music_library_parser/db/mongodb_api.py"""
+    """Test case class for mongodb_api.py"""
 
     def setUp(self, input_dir: str = 'input'):
         self.mdb_api = MongoMedia(server='localhost', port_num=27017,
@@ -46,10 +47,10 @@ class TestDatabase(unittest.TestCase):
         if self.mdb_api.conn_status:
             self.assertIsNone(self.mdb_api.show_collection_key_names())
 
-    def show_full_tags(self):
+    def test_show_full_tags(self):
         if self.mdb_api.conn_status:
             random_id = self.id_list[random.randint(0, self.id_count - 1)]
-            self.assertIsNone(self.mdb_api.show_tags(random_id), limited=False)
+            self.assertIsNone(self.mdb_api.show_tags(random_id, limited=False))
 
     def test_show_limited_tags(self):
         if self.mdb_api.conn_status:

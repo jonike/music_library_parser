@@ -6,6 +6,7 @@ import os
 import pathlib
 import string
 import sys
+import chardet
 import traceback
 from collections import OrderedDict
 from collections import Counter
@@ -17,7 +18,7 @@ DEBUG = False
 SHOW_METHODS = False
 
 __all__ = ['build_index_alphabet', 'bytes_to_readable',
-           'is_encoded', 'remove_accents',
+           'is_encoded', 'check_encoding', 'remove_accents', 'get_sha256_hash',
            'get_directory_size', 'split_path', 'is_config_in_path',
            'generate_date_str', 'save_output_txt', 'count_files',
            'build_parent_size_str', 'build_ext_count_str',
@@ -100,6 +101,16 @@ def is_encoded(data, encoding: str = 'default') -> bool:
         return True
 
 
+def check_encoding(input_val: bytes):
+    """Verifies if bytes object is UTF-8."""
+    if isinstance(input_val, (bytes, bytearray)):
+        # bytes: immutable, bytesarray: mutable both ASCII:[ints 0<=x<256]
+        return chardet.detect(input_val), input_val
+    # options: ignore, replace, backslashreplace, namereplace
+    bytes_arr = input_val.encode(encoding='UTF-8', errors='namereplace')
+    return chardet.detect(bytes_arr), bytes_arr
+
+
 def remove_accents(byte_input, byte_enc: str, confidence: float) -> str:
     """Decodes bytes object - dynamically determined."""
     # unicode_example = u'û è ï - ö î ó ‘ é  í ’ ° æ ™'
@@ -115,6 +126,23 @@ def remove_accents(byte_input, byte_enc: str, confidence: float) -> str:
     except (UnicodeDecodeError, UnicodeError):
         show_exception()
     return dec_str
+
+
+def get_sha256_hash(input_path: pathlib.Path) -> str:
+    """Returns hash value of input filepath."""
+    sha_hex = 'no hash'
+    if isinstance(input_path, pathlib.Path) or input_path:
+        if input_path.exists():
+            try:
+                file_pointer = open(str(input_path), 'rb')
+                fp_read = file_pointer.read()
+                sha_hash = hashlib.sha256(fp_read)
+                sha_hex = str(sha_hash.hexdigest().upper())
+                file_pointer.close()
+            except (OSError, PermissionError) as exc:
+                print(f"\nERROR: {inspect.currentframe().f_code.co_name}()")
+                print(f"  {sys.exc_info()[0]}\n{exc}")
+    return sha_hex
 
 
 def get_directory_size(input_path: pathlib.Path,

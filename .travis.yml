@@ -10,13 +10,9 @@ env:
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
 before_script:
   - mongo admin --eval 'db.createUser({user:"run_admin_run",pwd:"run_pass_run",roles:["dbAdminAnyDatabase"]});'
-  - psql -c "CREATE DATABASE media_db;" -U postgres
-  - psql -c "CREATE USER run_admin_run WITH PASSWORD 'run_pass_run';" -U postgres
 services:
   - mongodb
-  - postgresql
 script:
-  - python ./media_parser/db/postgres_etl.py --port_num=5432
   - python ./media_parser/insert_media_mongodb.py --port_num=27017
   - python -m pytest
 branches:

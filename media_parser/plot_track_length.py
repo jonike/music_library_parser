@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-"""Plot the statistical analysis of track lengths."""
+"""Plot statistical analysis of track lengths."""
 import datetime
 import inspect
 import os

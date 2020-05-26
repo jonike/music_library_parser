@@ -23,8 +23,7 @@ __author__ = "github.pdx"
 __email__ = "github.pdx@runbox.com"
 __status__ = "demo"
 __license__ = "MIT"
-__version__ = "1.4.7"
-
+__version__ = "1.4.8"
 
 __all__ = ['show_packages', 'get_login', 'get_isp_info', 'show_header']
 

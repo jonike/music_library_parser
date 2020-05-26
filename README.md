@@ -47,11 +47,9 @@ def build_genre_dictionary() -> dict:
 * [Discogs Music Database](https://www.discogs.com/)
 * [MediaMonkey](https://www.mediamonkey.com/information/free/)
 * [Foobar 2000](https://www.foobar2000.org/)
-* [XLS Writer](https://xlsxwriter.readthedocs.io/#)
-* [pymongo](https://pymongo.readthedocs.io/en/stable/)
 * [Spotify API](https://developer.spotify.com/documentation/web-api/quick-start/)
 * [Spotipy](https://spotipy.readthedocs.io/en/2.12.0/#)
-
+* [Picard Tag Mappings](https://picard.musicbrainz.org/docs/mappings/)
 
 ## Optional:
 * [Install Docker](https://www.docker.com/products/docker-desktop)
@@ -83,24 +81,6 @@ systemctl status mongod
 mongo admin --eval 'db.createUser({user:"run_admin_run",pwd:"run_pass_run",roles:["dbAdminAnyDatabase"]});'
 ```
 
-* [Install Postgres](https://www.postgresql.org/download/)
-
-* [Postgres Shell Commands](https://www.postgresql.org/docs/12/app-psql.html)
-```
-sudo sed -i 's/port = 5432/port = 5433/g' /etc/postgresql/12/main/postgresql.conf
-sudo service postgresql restart
-sudo lsof -iTCP -sTCP:LISTEN | grep postgres
-systemctl status postgres
-psql -c "CREATE DATABASE media_db;" -U postgres
-psql -c "CREATE USER run_admin_run WITH PASSWORD 'run_pass_run';" -U postgres
-```
-
-* [Spotify Authorization](https://developer.spotify.com/documentation/general/guides/authorization-guide/)
-```
-[spotify.com]
-SPOTIPY_CLIENT_ID = 123456789abcdefg <<-- enter yours here
-SPOTIPY_CLIENT_SECRET = abcdefg123456789  <<-- enter yours here
-```
 
 ## License:
 [MIT License](LICENSE)

@@ -4,7 +4,6 @@ import os
 import time
 from lib import config
 
-
 BASE_DIR, SCRIPT_NAME = os.path.split(os.path.abspath(__file__))
 PARENT_PATH, CURR_DIR = os.path.split(BASE_DIR)
 

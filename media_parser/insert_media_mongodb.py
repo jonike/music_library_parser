@@ -16,7 +16,7 @@ __all__ = ['insert_files_mongodb', 'insert_tags_mongodb', 'build_media_list']
 
 
 def insert_files_mongodb(path_list: list, mdb) -> None:
-    """Inserts with metadata or the media files directly to MongoDB."""
+    """Inserts media files ('.mp3', '.m4a', etc.) into MongoDB."""
     def_name = inspect.currentframe().f_code.co_name
     print(f"\n{def_name}()")
     try:
@@ -30,7 +30,7 @@ def insert_files_mongodb(path_list: list, mdb) -> None:
 
 
 def insert_tags_mongodb(tag_list: list, mdb) -> None:
-    """Inserts with metadata or the media files directly to MongoDB."""
+    """Inserts media metadata (tag data) into MongoDB."""
     def_name = inspect.currentframe().f_code.co_name
     print(f"\n{def_name}()")
     try:
@@ -54,7 +54,7 @@ def build_media_list(input_path: pathlib.Path):
 
 
 def main():
-    """Driver to insert tag/media into MongoDB."""
+    """Driver to insert tag/media into MongoDB media_db instance."""
     print(f"{SCRIPT_NAME} starting...")
     start = time.perf_counter()
     config.show_header(SCRIPT_NAME)
