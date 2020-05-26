@@ -48,15 +48,16 @@ def get_login() -> str:
 def get_isp_info() -> str:
     """Get current ISP information of connected host."""
     isp_req = Request('http://ipinfo.io/json')
+    info_str = ''
     try:
         response = urlopen(isp_req)
+        isp_data = json.load(response)
+        info_str = json.dumps(isp_data, sort_keys=True, indent=6)
     except HTTPError as exception:
         print(f"HTTPError code: {exception.code}")
     except URLError as exception:
         print(f"\nERROR: {sys.exc_info()[0]} {exception}")
         return exception.reason
-    isp_data = json.load(response)
-    info_str = json.dumps(isp_data, sort_keys=True, indent=6)
     return info_str
 
 
