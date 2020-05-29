@@ -6,10 +6,11 @@ import os
 import pathlib
 import string
 import sys
-import chardet
+import hashlib
 import traceback
 from collections import OrderedDict
 from collections import Counter
+import chardet
 
 BASE_DIR, SCRIPT_NAME = os.path.split(os.path.abspath(__file__))
 PARENT_PATH, CURR_DIR = os.path.split(BASE_DIR)
@@ -131,7 +132,7 @@ def remove_accents(byte_input, byte_enc: str, confidence: float) -> str:
 def get_sha256_hash(input_path: pathlib.Path) -> str:
     """Returns hash value of input filepath."""
     sha_hex = 'no hash'
-    if isinstance(input_path, pathlib.Path) or input_path:
+    if isinstance(input_path, pathlib.Path) and input_path:
         if input_path.exists():
             try:
                 file_pointer = open(str(input_path), 'rb')

@@ -21,4 +21,4 @@ build_stat_list()
 SUCCESS! export_to_json() 'music_library_parser\data\output'
 SUCCESS! export_to_excel() 'data\output\~media_report.xlsx'
 
-path_00: 'music_library_parser\data\input' runtime:  0.95 seconds
+path_00: 'music_library_parser\data\input' runtime:  0.79 seconds

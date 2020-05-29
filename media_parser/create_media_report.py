@@ -114,8 +114,9 @@ def export_to_excel(output_path: pathlib.Path,
                 tab_count = len(tags)
                 if tab_count != 28:  # structure validation check
                     print(f"\n~!ERROR!~ {def_name}() tab_count:{tab_count}")
-                    for i, tab_value in enumerate(tags):
-                        print(f"{i:04} {tab_value}")
+                    for i, tag_value in enumerate(tags):
+                        print(f"{i:04} {tag_value}")
+                    print(f"tags: {tags}")
                 if len(tags) > 1:
                     num += 1
                     ws1.write('A%d' % num,
@@ -127,14 +128,14 @@ def export_to_excel(output_path: pathlib.Path,
                     ws1.write('D%d' % num,
                               str(tags['file_ext']), ctr)
                     ws1.write('E%d' % num,
-                              str(tags['artist']), left_ctr)
+                              str(tags['artist_name']), left_ctr)
                     ws1.write('F%d' % num,
-                              str(tags['album']), left_ctr)
+                              str(tags['album_title']), left_ctr)
                     ws1.write('G%d' % num,
-                              str(tags['title']), left_ctr)
-                    if len(tags['track']) > 0:
+                              str(tags['track_title']), left_ctr)
+                    if len(tags['track_number']) > 0:
                         ws1.write('H%d' % num,
-                                  int(tags['track']), ctr_int)
+                                  int(tags['track_number']), ctr_int)
                     ws1.write('I%s' % num,
                               str(tags['track_length']), ctr_time)
                     ws1.write('J%d' % num,

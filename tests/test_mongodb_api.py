@@ -8,6 +8,7 @@ import uuid
 from bson import ObjectId
 from media_parser.db.mongodb_api import MongoMedia
 from media_parser.lib.file_tools import get_files
+from media_parser.lib import media_tools
 
 BASE_DIR, SCRIPT_NAME = os.path.split(os.path.abspath(__file__))
 PARENT_PATH, CURR_DIR = os.path.split(BASE_DIR)
@@ -16,25 +17,25 @@ PARENT_PATH, CURR_DIR = os.path.split(BASE_DIR)
 class TestDatabase(unittest.TestCase):
     """Test case class for mongodb_api.py"""
 
-    def setUp(self, input_dir: str = 'input'):
+    def setUp(self):
         self.mdb_api = MongoMedia(server='localhost', port_num=27017,
                                   username='run_admin_run',
-                                  password='run_pass_run')
+                                  password='run_pass_run',
+                                  database='media_db')
         if self.mdb_api.conn_status:
             self.id_list = self.mdb_api.get_object_by_key('_id',
                                                           unique_set=True)
             self.id_count = len(self.id_list)
-        print(self.id_list)
+            self.conn = self.mdb_api.get_connection()
+            self.databases = self.conn.list_database_names()
         self.new_value = uuid.uuid1().hex
-        self.input_path = pathlib.Path(PARENT_PATH, 'data', f'{input_dir}')
+        self.input_path = pathlib.Path(PARENT_PATH, 'data', 'input')
         self.media_paths = get_files(self.input_path, file_ext='.mp3')
         self.path_count = len(self.media_paths)
 
     def test_is_connected(self):
         if self.mdb_api.conn_status:
             self.assertTrue(self.mdb_api.is_connected())
-            self.conn = self.mdb_api.get_connection()
-            self.databases = self.conn.list_database_names()
             self.assertTrue('media_db' in self.databases)
         else:
             self.assertFalse(self.mdb_api.is_connected())
@@ -43,9 +44,12 @@ class TestDatabase(unittest.TestCase):
         if self.mdb_api.conn_status:
             self.assertIsNone(self.mdb_api.show_database_status())
 
-    def test_show_collection_key_names(self):
+    def test_get_collection_key_names(self):
         if self.mdb_api.conn_status:
-            self.assertIsNone(self.mdb_api.show_collection_key_names())
+            keys = self.mdb_api.get_collection_key_names()
+            self.assertIsNotNone(keys)
+            for hdr_key in media_tools.HEADER_KEYS:
+                self.assertTrue(hdr_key in keys)
 
     def test_show_full_tags(self):
         if self.mdb_api.conn_status:
@@ -59,7 +63,7 @@ class TestDatabase(unittest.TestCase):
 
     def test_get_object_by_key(self):
         if self.mdb_api.conn_status:
-            artist_list = self.mdb_api.get_object_by_key('artist',
+            artist_list = self.mdb_api.get_object_by_key('artist_name',
                                                          unique_set=True)
             self.assertIsInstance(artist_list, list)
 
@@ -77,10 +81,10 @@ class TestDatabase(unittest.TestCase):
         if self.mdb_api.conn_status:
             random_id = self.id_list[random.randint(0, self.id_count - 1)]
             orig_data = self.mdb_api.get_media(random_id)
-            orig_data['album'] = self.new_value
+            orig_data['album_title'] = self.new_value
             self.mdb_api.upsert_single_tags('hash', orig_data)
             new_data = self.mdb_api.get_media(random_id)
-            self.assertEqual(new_data['album'], self.new_value)
+            self.assertEqual(new_data['album_title'], self.new_value)
             self.mdb_api.show_tags(random_id)
 
     def test_store_bin_file(self):

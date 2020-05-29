@@ -20,16 +20,9 @@ __all__ = ['show_methods', 'build_genre_dictionary', 'convert_mp3_rating',
            'convert_flac_m4a_rating', 'dump_tag_data', 'get_all_media_paths',
            'build_stat_list']
 
-HEADERS = ['Index', 'File_Size (bytes)', 'File_Size (readable)',
-           'File_Ext', 'Artist', 'Album', 'Title', 'Track', 'Track_Length',
-           'Genre', 'Genre_in_Dict', 'Album_Art', 'Year', 'Encoder',
-           'Composer', 'Conductor', 'Comment',
-           'Track_Gain', 'Album_Gain', 'Full_Path',
-           'Path_Length', 'Date_Modified', 'Char_Encoding']
-
 HEADER_KEYS = ['index', 'file_size', 'readable_size', 'file_ext',
-               'artist', 'album', 'title', 'track', 'track_length',
-               'genre', 'genre_in_dict', 'album_art',
+               'artist_name', 'album_title', 'track_title', 'track_number',
+               'track_length', 'genre', 'genre_in_dict', 'album_art',
                'year', 'rating', 'encoder', 'composer', 'conductor',
                'comment', 'track_gain', 'album_gain', 'file_name',
                'path_len', 'last_modified', 'encoding', 'hash',
@@ -173,11 +166,11 @@ def dump_mp3_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
             hhmmss = str(datetime.timedelta(seconds=audio.info.length))
             tag_dict['track_length'] = hhmmss.split('.')[0]
             if 'TPE1' in parsed_dict:
-                tag_dict['artist'] = parsed_dict['TPE1']
+                tag_dict['artist_name'] = parsed_dict['TPE1']
             if 'TALB' in parsed_dict:
-                tag_dict['album'] = parsed_dict['TALB']
+                tag_dict['album_title'] = parsed_dict['TALB']
             if 'TIT2' in parsed_dict:
-                tag_dict['title'] = parsed_dict['TIT2']
+                tag_dict['track_title'] = parsed_dict['TIT2']
             if 'TCOM' in parsed_dict:
                 tag_dict['composer'] = parsed_dict['TCOM']
             if 'TPE3' in parsed_dict:
@@ -195,9 +188,9 @@ def dump_mp3_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
             if 'TRCK' in parsed_dict:
                 track_str = str(parsed_dict['TRCK'])
                 if '/' in track_str:
-                    tag_dict['track'] = track_str.split('/')[0]
+                    tag_dict['track_number'] = track_str.split('/')[0]
                 else:
-                    tag_dict['track'] = track_str
+                    tag_dict['track_number'] = track_str
             rate_key = 'POPM:no@email'
             if rate_key in parsed_dict:
                 rating_str = parsed_dict[rate_key].split(",")[1]
@@ -235,11 +228,11 @@ def dump_m4a_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
             hhmmss = str(datetime.timedelta(seconds=audio.info.length))
             tag_dict['track_length'] = hhmmss.split('.')[0]
             if '©ART' in parsed_dict:
-                tag_dict['artist'] = parsed_dict['©ART']
+                tag_dict['artist_name'] = parsed_dict['©ART']
             if '©alb' in parsed_dict:
-                tag_dict['album'] = parsed_dict['©alb']
+                tag_dict['album_title'] = parsed_dict['©alb']
             if '©nam' in parsed_dict:
-                tag_dict['title'] = parsed_dict['©nam']
+                tag_dict['track_title'] = parsed_dict['©nam']
             if '©wrt' in parsed_dict:
                 tag_dict['composer'] = parsed_dict['©wrt']
             con_key = '----:com.apple.iTunes:CONDUCTOR'
@@ -254,9 +247,9 @@ def dump_m4a_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
             if 'trkn' in parsed_dict:
                 track_str = parsed_dict['trkn'][1:-1].split(",")[0]
                 if '/' in track_str:
-                    tag_dict['track'] = track_str.split('/')[0]
+                    tag_dict['track_number'] = track_str.split('/')[0]
                 else:
-                    tag_dict['track'] = track_str
+                    tag_dict['track_number'] = track_str
             if 'rate' in parsed_dict:
                 rating_str = parsed_dict['rate']
                 tag_dict['rating'] = convert_flac_m4a_rating(rating_str)
@@ -294,11 +287,11 @@ def dump_flac_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
             hhmmss = str(datetime.timedelta(seconds=audio.info.length))
             tag_dict['track_length'] = hhmmss.split('.')[0]
             if 'artist' in parsed_dict:
-                tag_dict['artist'] = parsed_dict['artist']
+                tag_dict['artist_name'] = parsed_dict['artist']
             if 'album' in parsed_dict:
-                tag_dict['album'] = parsed_dict['album']
+                tag_dict['album_title'] = parsed_dict['album']
             if 'title' in parsed_dict:
-                tag_dict['title'] = parsed_dict['title']
+                tag_dict['track_title'] = parsed_dict['title']
             if 'composer' in parsed_dict:
                 tag_dict['composer'] = parsed_dict['composer']
             if 'conductor' in parsed_dict:
@@ -312,9 +305,9 @@ def dump_flac_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
             if 'tracknumber' in parsed_dict:
                 track_str = parsed_dict['tracknumber']
                 if '/' in track_str:
-                    tag_dict['track'] = track_str.split('/')[0]
+                    tag_dict['track_number'] = track_str.split('/')[0]
                 else:
-                    tag_dict['track'] = track_str
+                    tag_dict['track_number'] = track_str
             if 'rating' in parsed_dict:
                 rating_str = parsed_dict['rating']
                 tag_dict['rating'] = convert_flac_m4a_rating(rating_str)
@@ -353,11 +346,11 @@ def dump_wma_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
             hhmmss = str(datetime.timedelta(seconds=audio.info.length))
             tag_dict['track_length'] = hhmmss.split('.')[0]
             if 'Author' in parsed_dict:
-                tag_dict['artist'] = parsed_dict['Author']
+                tag_dict['artist_name'] = parsed_dict['Author']
             if 'WM/AlbumTitle' in parsed_dict:
-                tag_dict['album'] = parsed_dict['WM/AlbumTitle']
+                tag_dict['album_title'] = parsed_dict['WM/AlbumTitle']
             if 'Title' in parsed_dict:
-                tag_dict['title'] = parsed_dict['Title']
+                tag_dict['track_title'] = parsed_dict['Title']
             if 'WM/Composer' in parsed_dict:
                 tag_dict['composer'] = parsed_dict['WM/Composer']
             if 'WM/Conductor' in parsed_dict:
@@ -369,7 +362,7 @@ def dump_wma_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
             if 'WM/Year' in parsed_dict:
                 tag_dict['year'] = parsed_dict['WM/Year'][0:4]
             if 'WM/TrackNumber' in parsed_dict:
-                tag_dict['track'] = parsed_dict['WM/TrackNumber']
+                tag_dict['track_number'] = parsed_dict['WM/TrackNumber']
             if 'SDB/Rating' in parsed_dict:
                 rating_str = parsed_dict['SDB/Rating']
                 tag_dict['rating'] = convert_flac_m4a_rating(rating_str)
@@ -503,10 +496,10 @@ def build_stat_list(input_path: pathlib.Path) -> tuple:
                 curr_dir = str(file_path.parts[-1])
                 file_name = str(file_path.stem)
                 file_ext = str(file_path.suffix)
-                if tag_dict['artist'] in genre_dict:
-                    tag_dict['genre_in_dict'] = 'ARTIST_to_GENRE_OK'
+                if tag_dict['artist_name'] in genre_dict:
+                    tag_dict['genre_in_dict'] = 'GENRE_OK'
                 else:
-                    tag_dict['genre_in_dict'] = 'INCONSISTENT_GENRE'
+                    tag_dict['genre_in_dict'] = 'INCONSISTENT'
                 index += 1
                 current_hit = round(index / total, 4)
                 if len(percent_list) > 0:

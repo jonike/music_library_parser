@@ -123,7 +123,8 @@ class MongoMedia:
                 obj_dict = cls.get_media(document_id)
                 print()
                 if limited:
-                    for key in ['_id', 'artist', 'album', 'title']:
+                    for key in ['_id', 'artist_name',
+                                'album_title', 'track_title']:
                         print(f"  {key:16}{obj_dict[key]}")
                 else:
                     for key, val in obj_dict.items():
@@ -147,14 +148,15 @@ class MongoMedia:
         return None
 
     @classmethod
-    def show_collection_key_names(cls) -> list:
+    def get_collection_key_names(cls) -> list:
         """Map reduce of key names in media database."""
         docs = cls.media_conn[cls.__tags_collection].find_one()
         result_set = []
         if docs:
             for key in docs:
                 result_set.append(key)
-        print(f"\nkey_names: \n{','.join(result_set)}")
+        print(f"\nkey_names: \n{result_set}")
+        return result_set
 
     @classmethod
     def upsert_single_id(cls, document_id: ObjectId, data: dict) -> ObjectId:

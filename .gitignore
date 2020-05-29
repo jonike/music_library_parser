@@ -1,12 +1,13 @@
 # Custom
 tests/test_coverage
 tests/test_code_style
+tests/~unittest_output
 check_style_coverage.py
-tests/output
 venv
 private_cfg
 docker_cmds.txt
 setup.py
+visualize_media.py
 desktop.ini
 
 #IDE metadata
