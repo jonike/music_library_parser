@@ -20,9 +20,9 @@ class TestFileTools(unittest.TestCase):
         self.invalid_path = pathlib.Path(PARENT_PATH, 'does', 'not', 'exist')
         self.valid_ext = ['.mp3', '.m4a', '.flac', '.wma']
         self.is_win = platform.startswith('win')
-        self.out_path = os.path.join(BASE_DIR, '~unittest_output')
-        if not os.path.exists(self.out_path):
-            os.makedirs(self.out_path)
+        self.out_path = pathlib.Path(BASE_DIR, '~unittest_output')
+        if not self.out_path.exists():
+            self.out_path.mkdir(parents=True, exist_ok=True)
             print(f"\nsetUp: {self.out_path}\n")
 
     def test_build_index_alphabet(self):

@@ -13,7 +13,7 @@ from pathvalidate import sanitize_filename
 import xlsxwriter
 from lib import config, file_tools, media_tools, user_input
 
-BASE_DIR, SCRIPT_NAME = os.path.split(os.path.abspath(__file__))
+BASE_DIR, MODULE_NAME = os.path.split(os.path.abspath(__file__))
 PARENT_PATH, CURR_DIR = os.path.split(BASE_DIR)
 
 MAX_EXCEL_TAB = 31
@@ -243,7 +243,7 @@ def export_to_json(output_path: pathlib.Path, stat_list_of_dicts: list) -> str:
     try:
         if isinstance(output_path, pathlib.Path) and output_path:
             if not output_path.exists():
-                os.makedirs(output_path)
+                output_path.mkdir(parents=True, exist_ok=True)
         if isinstance(stat_list_of_dicts, list) and stat_list_of_dicts:
             if len(stat_list_of_dicts) > 0:
                 json_path = pathlib.Path(output_path, "media_lib.json")
@@ -269,9 +269,9 @@ def main():
     else:
         path_list = user_input.get_test_directories()
     if path_list:  # is not None from bad user input
-        print(f"{SCRIPT_NAME} starting...")
+        print(f"{MODULE_NAME} starting...")
         start = time.perf_counter()
-        config.show_header(SCRIPT_NAME)
+        config.show_header(MODULE_NAME)
         for num, input_path in enumerate(path_list):
             if input_path.exists() and input_path.is_dir():
                 log_str = (f"path_{num:02d}: "
@@ -297,7 +297,7 @@ def main():
                 txt_file_name = sanitize_filename(f"~{report_name}.txt")
                 xls_output = sanitize_filename(f"~{report_name}.xlsx")
                 if not output_path.exists():
-                    os.makedirs(output_path)
+                    output_path.mkdir(parents=True, exist_ok=True)
                 ws_name = sanitize_filename(f"{trunc_path}"[:MAX_EXCEL_TAB])
                 # works on both Linux and Windows
                 log_str += export_to_excel(output_path,
@@ -316,7 +316,7 @@ def main():
             else:
                 print(f"input path not found... {input_path}")
         end = time.perf_counter() - start
-        print(f"\n{SCRIPT_NAME} finished in {end:0.2f} seconds")
+        print(f"\n{MODULE_NAME} finished in {end:0.2f} seconds")
 
 
 if __name__ == "__main__":

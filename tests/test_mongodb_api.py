@@ -110,14 +110,14 @@ class TestDatabase(unittest.TestCase):
             file_path = self.media_paths[2]
             doc_id = self.mdb_api.store_bin_file(file_path)
             # read-only, binary mode
-            file_ptr = open(f"{file_path}", 'rb')
-            bin_file = file_ptr.read()
-            bin_data = self.mdb_api.get_bin_file(doc_id)
-            self.assertEqual(bin_file, bin_data)
-            bin_hash = hashlib.sha3_256(bin_file).hexdigest().upper()
-            tag_data = self.mdb_api.get_media_by_filename(file_path)
-            if tag_data:
-                self.assertEqual(bin_hash, tag_data['hash'])
+            with open(f"{file_path}", 'rb') as file_ptr:
+                bin_file = file_ptr.read()
+                bin_data = self.mdb_api.get_bin_file(doc_id)
+                self.assertEqual(bin_file, bin_data)
+                bin_hash = hashlib.sha3_256(bin_file).hexdigest().upper()
+                tag_data = self.mdb_api.get_media_by_filename(file_path)
+                if tag_data:
+                    self.assertEqual(bin_hash, tag_data['hash'])
             file_ptr.close()
 
     def test_remove_data(self):

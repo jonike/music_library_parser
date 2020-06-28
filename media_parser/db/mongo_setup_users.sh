@@ -1,4 +1,5 @@
 #!/bin/bash
+# add mongo to path: C:\Program Files\MongoDB\Server\4.2\bin
 printf "%s starting...\n" "${BASH_SOURCE[0]}"
 START=$(date +%s.%N)
 

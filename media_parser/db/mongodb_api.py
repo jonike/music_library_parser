@@ -241,11 +241,11 @@ class MongoMedia:
         try:
             if file_path.exists():
                 if not cls.grid_fs.exists({"filename": str(file_path.name)}):
-                    file_ptr = open(f"{str(file_path)}", 'rb')
-                    bin_media = file_ptr.read()
-                    if bin_media:
-                        bin_id = cls.grid_fs.put(bin_media,
-                                                 filename=file_path.name)
+                    with open(f"{str(file_path)}", 'rb') as file_ptr:
+                        bin_media = file_ptr.read()
+                        if bin_media:
+                            bin_id = cls.grid_fs.put(bin_media,
+                                                     filename=file_path.name)
                         file_ptr.close()
                         return bin_id
                 else:

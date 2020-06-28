@@ -9,6 +9,7 @@ docker_cmds.txt
 setup.py
 visualize_media.py
 desktop.ini
+ffmpeg-4.2.3
 
 #IDE metadata
 .idea/

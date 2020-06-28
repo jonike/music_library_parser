@@ -8,7 +8,7 @@ import pathlib
 from lib import config, user_input, media_tools
 from db import mongodb_api, cmd_args
 
-BASE_DIR, SCRIPT_NAME = os.path.split(os.path.abspath(__file__))
+BASE_DIR, MODULE_NAME = os.path.split(os.path.abspath(__file__))
 TWO_PARENT_PATH = os.sep.join(pathlib.Path(BASE_DIR).parts[:-2])
 PARENT_PATH, CURR_DIR = os.path.split(BASE_DIR)
 
@@ -55,9 +55,9 @@ def build_media_list(input_path: pathlib.Path):
 
 def main():
     """Driver to insert tag/media into MongoDB media_db instance."""
-    print(f"{SCRIPT_NAME} starting...")
+    print(f"{MODULE_NAME} starting...")
     start = time.perf_counter()
-    config.show_header(SCRIPT_NAME)
+    config.show_header(MODULE_NAME)
     args = cmd_args.get_cmd_args(port_num=27017)
     path_list = [args.file_path]
     server = args.server
@@ -95,7 +95,7 @@ def main():
         else:
             print(f"input path not found... {input_path}")
     end = time.perf_counter() - start
-    print(f"{SCRIPT_NAME} finished in {end:0.2f} seconds")
+    print(f"{MODULE_NAME} finished in {end:0.2f} seconds")
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.com/github-pdx/music_library_parser.svg?branch=master)](https://travis-ci.com/github-pdx/music_library_parser)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-## Python v3.7 script to Extract FLAC/MP3/M4A Tags:
+## Python v3.8 script to Extract FLAC/MP3/M4A Tags:
 Runs media tag dump to extract specific information about each music file and exports desired metadata to Excel report '.xlsx'. 
 
 ## Example Output:
@@ -18,10 +18,10 @@ Runs media tag dump to extract specific information about each music file and ex
 ![Screenshot](https://github.com/github-pdx/music_library_parser/blob/master/img/media_status.png)
 
 ## Tested On:
-* Ubuntu 16.04 LTS (Xenial Xerus)
 * Ubuntu 18.04 LTS (Bionic Beaver)
+* Ubuntu 20.04 LTS (Focal Fossa)
 * CentOS 8 (RHEL)
-* Windows 10 version 1909
+* Windows 10 version 2004
 
 ## Custom Genres
 ```

@@ -1,10 +1,12 @@
 # -*- coding: UTF-8 -*-
 """UI module to parse user input."""
+import argparse
 import inspect
 import os
 import pathlib
+from pathvalidate.argparse import sanitize_filepath_arg
 
-BASE_DIR, SCRIPT_NAME = os.path.split(os.path.abspath(__file__))
+BASE_DIR, MODULE_NAME = os.path.split(os.path.abspath(__file__))
 PARENT_PATH, CURR_DIR = os.path.split(BASE_DIR)
 TWO_PARENT_PATH = os.sep.join(pathlib.Path(BASE_DIR).parts[:-2])
 

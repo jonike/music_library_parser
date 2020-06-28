@@ -13,7 +13,7 @@ from db import cmd_args, mongodb_api
 np.seterr(divide='ignore', invalid='ignore')
 np.set_printoptions(precision=4)
 np.set_printoptions(formatter={'float': '{:0.2f}'.format})
-BASE_DIR, SCRIPT_NAME = os.path.split(os.path.abspath(__file__))
+BASE_DIR, MODULE_NAME = os.path.split(os.path.abspath(__file__))
 PARENT_PATH, CURR_DIR = os.path.split(BASE_DIR)
 VERBOSE = False
 
@@ -100,7 +100,7 @@ def generate_plot(title: str, data: list):
 
 def main():
     """"Driver for plotting normal distribution based on track length."""
-    print(f"{SCRIPT_NAME} starting...")
+    print(f"{MODULE_NAME} starting...")
     start = time.perf_counter()
     args = cmd_args.get_cmd_args(port_num=27017)
     path_list = [args.file_path]
@@ -125,7 +125,7 @@ def main():
             title = f"Normal Distribution (μ={rnd_mu}, σ={rnd_sigma})"
             plot = generate_plot(title, data)
             output_path = os.path.join(PARENT_PATH, 'data', 'output',
-                                       f"{SCRIPT_NAME[:-3]}.html")
+                                       f"{MODULE_NAME[:-3]}.html")
             output_file(output_path, title="Histogram Track Lengths")
             show(gridplot([plot],
                           ncols=2,
@@ -135,7 +135,7 @@ def main():
         else:
             print(f"{mdb.show_collections()}")
     end = time.perf_counter() - start
-    print(f"{SCRIPT_NAME} finished in {end:0.2f} seconds")
+    print(f"{MODULE_NAME} finished in {end:0.2f} seconds")
 
 
 if __name__ == "__main__":
