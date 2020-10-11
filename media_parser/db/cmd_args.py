@@ -8,7 +8,6 @@ from pathvalidate.argparse import sanitize_filepath_arg
 MODULE_NAME = Path(__file__).resolve().name
 BASE_DIR = Path.cwd()
 PARENT_PATH = Path.cwd().parent
-TWO_PARENT_PATH = Path.cwd().parent.parent
 
 __all__ = ['get_cmd_args']
 
@@ -27,7 +26,7 @@ def get_cmd_args(port_num: int = 27017) -> list:
                         type=str, default='media_db',
                         help="database")
     parser.add_argument("-f", "--file_path",
-                        default=Path(TWO_PARENT_PATH, 'data', 'input'),
+                        default=Path(BASE_DIR, 'data', 'input'),
                         type=sanitize_filepath_arg,
                         help="username")
     parser.add_argument("-u", "--username",

@@ -66,7 +66,7 @@ def main():
     username = args.username
     password = args.password
     if config.DEMO_ENABLED:
-        data_path = Path(PARENT_PATH, 'data', 'input')
+        data_path = Path(BASE_DIR, 'data', 'input')
         path_list = user_input.prompt_path_input(input_path=data_path,
                                                  skip_ui=True)
     else:
