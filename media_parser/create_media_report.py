@@ -6,16 +6,16 @@ import os
 import math
 import sys
 import time
-import pathlib
+from pathlib import Path
 import pandas
 from dateutil import parser
 from pathvalidate import sanitize_filename
 import xlsxwriter
 from lib import config, file_tools, media_tools, user_input
 
-BASE_DIR, MODULE_NAME = os.path.split(os.path.abspath(__file__))
-PARENT_PATH, CURR_DIR = os.path.split(BASE_DIR)
-
+MODULE_NAME = Path(__file__).resolve().name
+BASE_DIR = Path.cwd()
+PARENT_PATH = Path.cwd().parent
 MAX_EXCEL_TAB = 31
 ALPHABET = file_tools.build_index_alphabet()
 
@@ -41,7 +41,7 @@ def get_header_column_widths(input_tag_list: list) -> dict:
     return hdr_col_width_dict
 
 
-def export_to_excel(output_path: pathlib.Path,
+def export_to_excel(output_path: Path,
                     output_filename: str,
                     tab_name: str,
                     stat_list_of_dicts: list,
@@ -50,7 +50,7 @@ def export_to_excel(output_path: pathlib.Path,
     def_name = inspect.currentframe().f_code.co_name
     status = ''
     try:
-        output_filepath = pathlib.Path(output_path, output_filename)
+        output_filepath = Path(output_path, output_filename)
         wb = xlsxwriter.Workbook(f"{output_filepath}")
         # file size worksheet
         ws1 = wb.add_worksheet(tab_name[:MAX_EXCEL_TAB])
@@ -236,17 +236,17 @@ def export_to_excel(output_path: pathlib.Path,
     return status
 
 
-def export_to_json(output_path: pathlib.Path, stat_list_of_dicts: list) -> str:
+def export_to_json(output_path: Path, stat_list_of_dicts: list) -> str:
     """Exports media tag data into output Excel report file with markup."""
     def_name = inspect.currentframe().f_code.co_name
     status = ''
     try:
-        if isinstance(output_path, pathlib.Path) and output_path:
+        if isinstance(output_path, Path) and output_path:
             if not output_path.exists():
                 output_path.mkdir(parents=True, exist_ok=True)
         if isinstance(stat_list_of_dicts, list) and stat_list_of_dicts:
             if len(stat_list_of_dicts) > 0:
-                json_path = pathlib.Path(output_path, "media_lib.json")
+                json_path = Path(output_path, "media_lib.json")
                 # 1D=series, 2D=dataframe
                 df = pandas.DataFrame(stat_list_of_dicts)
                 df.to_json(json_path, orient='split')
@@ -263,7 +263,7 @@ def export_to_json(output_path: pathlib.Path, stat_list_of_dicts: list) -> str:
 def main():
     """Driver to generate output excel report based on media in input path."""
     if config.DEMO_ENABLED:
-        data_path = pathlib.Path(PARENT_PATH, 'data', 'input')
+        data_path = Path(PARENT_PATH, 'data', 'input')
         path_list = user_input.prompt_path_input(input_path=data_path,
                                                  skip_ui=True)
     else:
@@ -285,12 +285,12 @@ def main():
                 log_str += path_str
                 trunc_path = f"{'-'.join(input_path.parts[-2:])}"
                 if config.DEMO_ENABLED:
-                    output_path = pathlib.Path(PARENT_PATH, 'data', 'output')
-                    json_path = pathlib.Path(output_path)
+                    output_path = Path(PARENT_PATH, 'data', 'output')
+                    json_path = Path(output_path)
                     report_name = 'media_report'
                 else:
-                    output_path = pathlib.Path(input_path)
-                    json_path = pathlib.Path(input_path, 'json')
+                    output_path = Path(input_path)
+                    json_path = Path(input_path, 'json')
                     report_name = (f"{trunc_path}_media_report_"
                                    f"{file_tools.generate_date_str()[0]}")
                 log_str += export_to_json(json_path, stat_list)

@@ -6,7 +6,7 @@ import inspect
 import hashlib
 import os
 import sys
-import pathlib
+from pathlib import Path
 import traceback
 import chardet
 import mutagen
@@ -42,7 +42,7 @@ def show_exception():
                               limit=2, file=sys.stdout)
 
 
-def dump_tag_data(media_path: pathlib.Path) -> dict:
+def dump_tag_data(media_path: Path) -> dict:
     """Parses media tag data of interest into dictionary mapping."""
     show_methods(inspect.currentframe().f_code.co_name)
     file_ext = str(media_path.suffix).lower()
@@ -138,10 +138,10 @@ def convert_flac_m4a_rating(input_rating: str = 'default') -> str:
     return rating
 
 
-def export_tags(input_path: pathlib.Path) -> None:
+def export_tags(input_path: Path) -> None:
     """Dump media tags to text files."""
     show_methods(inspect.currentframe().f_code.co_name)
-    if isinstance(input_path, pathlib.Path) and input_path:
+    if isinstance(input_path, Path) and input_path:
         try:
             curr_dir = input_path.parts[-1]
             output_path = os.path.join(str(input_path.parent),
@@ -155,7 +155,7 @@ def export_tags(input_path: pathlib.Path) -> None:
             show_exception()
 
 
-def dump_mp3_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
+def dump_mp3_tags(media_path: Path, tag_dict: dict) -> dict:
     """Parses MP3 tag data of interest into dictionary mapping."""
     show_methods(inspect.currentframe().f_code.co_name)
     try:
@@ -217,7 +217,7 @@ def dump_mp3_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
     return tag_dict
 
 
-def dump_m4a_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
+def dump_m4a_tags(media_path: Path, tag_dict: dict) -> dict:
     """Parses M4A tag data of interest into dictionary mapping."""
     show_methods(inspect.currentframe().f_code.co_name)
     try:
@@ -276,7 +276,7 @@ def dump_m4a_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
     return tag_dict
 
 
-def dump_flac_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
+def dump_flac_tags(media_path: Path, tag_dict: dict) -> dict:
     """Parses FLAC tag data of interest into dictionary mapping."""
     show_methods(inspect.currentframe().f_code.co_name)
     try:
@@ -335,7 +335,7 @@ def dump_flac_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
     return tag_dict
 
 
-def dump_wma_tags(media_path: pathlib.Path, tag_dict: dict) -> dict:
+def dump_wma_tags(media_path: Path, tag_dict: dict) -> dict:
     """Parses WMA tag data of interest into dictionary mapping."""
     show_methods(inspect.currentframe().f_code.co_name)
     try:
@@ -448,10 +448,10 @@ def check_encoding(input_val: bytes):
     return chardet.detect(bytes_arr), bytes_arr
 
 
-def get_sha256_hash(input_path: pathlib.Path) -> str:
+def get_sha256_hash(input_path: Path) -> str:
     """Returns SHA1 hash value of input filepath."""
     sha_hex = 'no hash'
-    if isinstance(input_path, pathlib.Path) or input_path:
+    if isinstance(input_path, Path) or input_path:
         if input_path.exists():
             try:
                 file_pointer = open(str(input_path), 'rb')
@@ -464,7 +464,7 @@ def get_sha256_hash(input_path: pathlib.Path) -> str:
     return sha_hex
 
 
-def get_all_media_paths(input_path: pathlib.Path) -> list:
+def get_all_media_paths(input_path: Path) -> list:
     """Find all media files with extension: [.mp3, .m4a, .flac, .wma]."""
     all_media_paths = []
     for file_ext in AUDIO_EXT:
@@ -475,10 +475,10 @@ def get_all_media_paths(input_path: pathlib.Path) -> list:
     return all_media_paths
 
 
-def build_stat_list(input_path: pathlib.Path) -> tuple:
+def build_stat_list(input_path: Path) -> tuple:
     """Parses media tags and converts to a list to be later passed to Excel."""
-    def_name = inspect.currentframe().f_code.co_name
-    output_str = f"{def_name}()\n"
+    func_name = f"{inspect.currentframe().f_code.co_name}()"
+    output_str = f"{func_name}\n"
     print(output_str, end='')
     index = 0
     genre_dict = build_genre_dictionary()
@@ -491,7 +491,7 @@ def build_stat_list(input_path: pathlib.Path) -> tuple:
     if total > 1:
         for file_path in all_media_path_list:
             if str(file_path).lower().endswith(tuple(AUDIO_EXT)):
-                pl_path = pathlib.Path(file_path)
+                pl_path = Path(file_path)
                 char_enc = check_encoding(str(file_path))[0]
                 tag_dict = dump_tag_data(file_path)
                 curr_dir = str(file_path.parts[-1])

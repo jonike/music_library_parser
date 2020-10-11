@@ -1,26 +1,26 @@
 import unittest
 import os
-import pathlib
+from pathlib import Path
 from sys import platform
 from media_parser.lib import file_tools as ft
 
-BASE_DIR, SCRIPT_NAME = os.path.split(os.path.abspath(__file__))
-TWO_PARENT_PATH = os.sep.join(pathlib.Path(BASE_DIR).parts[:-2])
-PARENT_PATH, CURR_DIR = os.path.split(BASE_DIR)
+MODULE_NAME = Path(__file__).resolve().name
+BASE_DIR = Path.cwd()
+PARENT_PATH = Path.cwd().parent
 
 
 class TestFileTools(unittest.TestCase):
     """Test case class for file_tools.py"""
 
     def setUp(self):
-        self.valid_dir = pathlib.Path(PARENT_PATH, 'data', 'input')
-        self.valid_file = pathlib.Path(BASE_DIR, '__init__.py')
-        self.no_ext_file = pathlib.Path(PARENT_PATH, 'Dockerfile')
-        self.valid_parent = pathlib.Path(PARENT_PATH, 'tests')
-        self.invalid_path = pathlib.Path(PARENT_PATH, 'does', 'not', 'exist')
+        self.valid_dir = Path(PARENT_PATH, 'data', 'input')
+        self.valid_file = Path(BASE_DIR, '__init__.py')
+        self.no_ext_file = Path(PARENT_PATH, 'Dockerfile')
+        self.valid_parent = Path(PARENT_PATH, 'tests')
+        self.invalid_path = Path(PARENT_PATH, 'does', 'not', 'exist')
         self.valid_ext = ['.mp3', '.m4a', '.flac', '.wma']
         self.is_win = platform.startswith('win')
-        self.out_path = pathlib.Path(BASE_DIR, '~unittest_output')
+        self.out_path = Path(BASE_DIR, '~unittest_output')
         if not self.out_path.exists():
             self.out_path.mkdir(parents=True, exist_ok=True)
             print(f"\nsetUp: {self.out_path}\n")
@@ -111,15 +111,15 @@ class TestFileTools(unittest.TestCase):
         dir_stats = ft.get_dir_stats(self.valid_dir)
         self.assertIsInstance(dir_stats, list)
         self.assertEqual(len(dir_stats), len(os.listdir(self.valid_dir)))
-        for d_stat in dir_stats:
-            self.assertIsInstance(d_stat, list)
-            self.assertIsInstance(d_stat[0], str)
+        for dir_stat in dir_stats:
+            self.assertIsInstance(dir_stat, list)
+            self.assertIsInstance(dir_stat[0], str)
 
     def test_get_files(self):
         file_list = ft.get_files(PARENT_PATH, file_ext='.txt')
         for _file in file_list:
             self.assertTrue(_file.is_file())
-            self.assertIsInstance(_file, pathlib.Path)
+            self.assertIsInstance(_file, Path)
             self.assertIn('.txt', str(_file))
             self.assertNotIn('.py', str(_file))
 
@@ -127,7 +127,7 @@ class TestFileTools(unittest.TestCase):
         dir_list = ft.get_directories(self.valid_dir)
         for folder in dir_list:
             self.assertTrue(folder.is_dir())
-            self.assertIsInstance(folder, pathlib.Path)
+            self.assertIsInstance(folder, Path)
             self.assertEqual(len(dir_list),
                              len(os.listdir(self.valid_dir)))
 
@@ -141,8 +141,6 @@ class TestFileTools(unittest.TestCase):
 
     def tearDown(self):
         pass
-        # if os.path.exists(self.out_path):
-        #    shutil.rmtree(self.out_path)
 
 
 if __name__ == '__main__':

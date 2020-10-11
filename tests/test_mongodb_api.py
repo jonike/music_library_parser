@@ -1,7 +1,6 @@
 """Unit tests to insert media tags into MongoDB media_db instance."""
 import unittest
-import os
-import pathlib
+from pathlib import Path
 import random
 import hashlib
 import uuid
@@ -10,8 +9,9 @@ from media_parser.db.mongodb_api import MongoMedia
 from media_parser.lib.file_tools import get_files
 from media_parser.lib import media_tools
 
-BASE_DIR, SCRIPT_NAME = os.path.split(os.path.abspath(__file__))
-PARENT_PATH, CURR_DIR = os.path.split(BASE_DIR)
+MODULE_NAME = Path(__file__).resolve().name
+BASE_DIR = Path.cwd()
+PARENT_PATH = Path.cwd().parent
 
 
 class TestDatabase(unittest.TestCase):
@@ -29,7 +29,7 @@ class TestDatabase(unittest.TestCase):
             self.conn = self.mdb_api.get_connection()
             self.databases = self.conn.list_database_names()
         self.new_value = uuid.uuid1().hex
-        self.input_path = pathlib.Path(PARENT_PATH, 'data', 'input')
+        self.input_path = Path(PARENT_PATH, 'data', 'input')
         self.media_paths = get_files(self.input_path, file_ext='.mp3')
         self.path_count = len(self.media_paths)
 
@@ -89,13 +89,14 @@ class TestDatabase(unittest.TestCase):
 
     def test_store_bin_file(self):
         if self.mdb_api.conn_status:
-            file_path = self.media_paths[0]
-            set_grid_id = self.mdb_api.store_bin_file(file_path)
-            get_grid_id = self.mdb_api.get_gridfs_id(file_path)
-            self.assertEqual(set_grid_id, get_grid_id)
-            tag_data = self.mdb_api.get_media_by_filename(file_path)
-            self.mdb_api.show_tags(tag_data['_id'])
-            self.assertEqual(str(file_path.name), tag_data['file_name'])
+            if len(self.media_paths) > 0:
+                file_path = self.media_paths[0]
+                set_grid_id = self.mdb_api.store_bin_file(file_path)
+                get_grid_id = self.mdb_api.get_gridfs_id(file_path)
+                self.assertEqual(set_grid_id, get_grid_id)
+                tag_data = self.mdb_api.get_media_by_filename(file_path)
+                self.mdb_api.show_tags(tag_data['_id'])
+                self.assertEqual(str(file_path.name), tag_data['file_name'])
 
     def test_get_media_by_filename(self):
         if self.mdb_api.conn_status:
@@ -109,7 +110,7 @@ class TestDatabase(unittest.TestCase):
         if self.mdb_api.conn_status:
             file_path = self.media_paths[2]
             doc_id = self.mdb_api.store_bin_file(file_path)
-            # read-only, binary mode
+            # 'r'=read-only, 'b'=binary mode
             with open(f"{file_path}", 'rb') as file_ptr:
                 bin_file = file_ptr.read()
                 bin_data = self.mdb_api.get_bin_file(doc_id)
@@ -124,11 +125,13 @@ class TestDatabase(unittest.TestCase):
         if self.mdb_api.conn_status:
             file_path = self.media_paths[-1]
             tag_data = self.mdb_api.get_media_by_filename(file_path)
+
             if tag_data:
                 media_id = tag_data['_id']
                 status = self.mdb_api.remove_data(media_id)
                 self.assertTrue(status)
                 self.assertIsNone(self.mdb_api.get_media(media_id))
+
                 # add the deleted tag_ data back to MongoDB
                 object_id = self.mdb_api.upsert_single_tags('hash', tag_data)
                 self.assertTrue(ObjectId.is_valid(object_id))

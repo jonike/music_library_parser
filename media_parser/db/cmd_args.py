@@ -2,13 +2,13 @@
 """UI module to parse user input."""
 import argparse
 import inspect
-import os
-import pathlib
+from pathlib import Path
 from pathvalidate.argparse import sanitize_filepath_arg
 
-BASE_DIR, SCRIPT_NAME = os.path.split(os.path.abspath(__file__))
-PARENT_PATH, CURR_DIR = os.path.split(BASE_DIR)
-TWO_PARENT_PATH = os.sep.join(pathlib.Path(BASE_DIR).parts[:-2])
+MODULE_NAME = Path(__file__).resolve().name
+BASE_DIR = Path.cwd()
+PARENT_PATH = Path.cwd().parent
+TWO_PARENT_PATH = Path.cwd().parent.parent
 
 __all__ = ['get_cmd_args']
 
@@ -22,12 +22,12 @@ def get_cmd_args(port_num: int = 27017) -> list:
                         help="server")
     parser.add_argument("-p", "--port_num",
                         type=int, default=port_num,
-                        help="port_num")
-                        # 5433 5432 27017 27018
+                        help="port_num")  # 5433 5432 27017 27018
     parser.add_argument("-d", "--database",
                         type=str, default='media_db',
                         help="database")
     parser.add_argument("-f", "--file_path",
+                        default=Path(TWO_PARENT_PATH, 'data', 'input'),
                         type=sanitize_filepath_arg,
                         help="username")
     parser.add_argument("-u", "--username",
@@ -37,13 +37,10 @@ def get_cmd_args(port_num: int = 27017) -> list:
                         type=str, default='run_pass_run',
                         help="password")
     args = parser.parse_args()
-    if args.file_path is None:
-        args.file_path = pathlib.Path(TWO_PARENT_PATH, 'data', 'input')
+    args.file_path = Path(args.file_path)
+    if args.file_path.exists() and args.file_path.is_dir():
+        print(f"{def_name}() dumping path:'{args.file_path}'")
     else:
-        args.file_path = pathlib.Path(args.file_path)
-        if args.file_path.exists() and args.file_path.is_dir():
-            print(f"{def_name}() dumping path:'{str(args.file_path)}'")
-        else:
-            parser.error(f"invalid path: '{str(args.file_path)}'")
-            args.file_path = None
+        parser.error(f"invalid path: '{args.file_path}'")
+        args.file_path = None
     return args

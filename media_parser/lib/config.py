@@ -11,8 +11,6 @@ from urllib.request import Request
 from urllib.request import urlopen
 import pkg_resources
 
-BASE_DIR, SCRIPT_NAME = os.path.split(os.path.abspath(__file__))
-PARENT_PATH, CURR_DIR = os.path.split(BASE_DIR)
 IS_WINDOWS = sys.platform.startswith('win')
 DEBUG = False
 VERBOSE = False
@@ -23,7 +21,7 @@ __author__ = "github.pdx"
 __email__ = "github.pdx@runbox.com"
 __status__ = "demo"
 __license__ = "MIT"
-__version__ = "1.4.9"
+__version__ = "1.5.2"
 
 __all__ = ['show_packages', 'get_login', 'get_isp_info', 'show_header']
 
