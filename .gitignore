@@ -1,7 +1,7 @@
 # Custom
 tests/test_coverage
 tests/test_code_style
-tests/~unittest_output
+~unittest_output/
 check_style_coverage.py
 venv
 private_cfg

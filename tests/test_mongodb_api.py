@@ -11,7 +11,6 @@ from media_parser.lib import media_tools
 
 MODULE_NAME = Path(__file__).resolve().name
 BASE_DIR = Path.cwd()
-PARENT_PATH = Path.cwd().parent
 
 
 class TestDatabase(unittest.TestCase):
@@ -29,7 +28,7 @@ class TestDatabase(unittest.TestCase):
             self.conn = self.mdb_api.get_connection()
             self.databases = self.conn.list_database_names()
         self.new_value = uuid.uuid1().hex
-        self.input_path = Path(PARENT_PATH, 'data', 'input')
+        self.input_path = Path(BASE_DIR, 'data', 'input')
         self.media_paths = get_files(self.input_path, file_ext='.mp3')
         self.path_count = len(self.media_paths)
 

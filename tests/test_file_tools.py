@@ -6,21 +6,20 @@ from media_parser.lib import file_tools as ft
 
 MODULE_NAME = Path(__file__).resolve().name
 BASE_DIR = Path.cwd()
-PARENT_PATH = Path.cwd().parent
 
 
 class TestFileTools(unittest.TestCase):
     """Test case class for file_tools.py"""
 
     def setUp(self):
-        self.valid_dir = Path(PARENT_PATH, 'data', 'input')
-        self.valid_file = Path(BASE_DIR, '__init__.py')
-        self.no_ext_file = Path(PARENT_PATH, 'Dockerfile')
-        self.valid_parent = Path(PARENT_PATH, 'tests')
-        self.invalid_path = Path(PARENT_PATH, 'does', 'not', 'exist')
+        self.valid_dir = Path(BASE_DIR, 'data', 'input')
+        self.valid_file = Path(BASE_DIR, 'README.md')
+        self.no_ext_file = Path(BASE_DIR, 'Dockerfile')
+        self.valid_parent = Path(BASE_DIR, 'tests')
+        self.invalid_path = Path(BASE_DIR, 'does', 'not', 'exist')
         self.valid_ext = ['.mp3', '.m4a', '.flac', '.wma']
         self.is_win = platform.startswith('win')
-        self.out_path = Path(BASE_DIR, '~unittest_output')
+        self.out_path = Path(BASE_DIR, 'tests', '~unittest_output')
         if not self.out_path.exists():
             self.out_path.mkdir(parents=True, exist_ok=True)
             print(f"\nsetUp: {self.out_path}\n")
@@ -116,7 +115,7 @@ class TestFileTools(unittest.TestCase):
             self.assertIsInstance(dir_stat[0], str)
 
     def test_get_files(self):
-        file_list = ft.get_files(PARENT_PATH, file_ext='.txt')
+        file_list = ft.get_files(BASE_DIR, file_ext='.txt')
         for _file in file_list:
             self.assertTrue(_file.is_file())
             self.assertIsInstance(_file, Path)
